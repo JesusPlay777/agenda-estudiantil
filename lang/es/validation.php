@@ -1,0 +1,47 @@
+<?php
+
+return [
+    'accepted' => 'El campo :attribute debe ser aceptado.',
+    'array' => 'El campo :attribute debe ser un arreglo.',
+    'boolean' => 'El campo :attribute debe ser verdadero o falso.',
+    'confirmed' => 'La confirmación de :attribute no coincide.',
+    'current_password' => 'La contraseña actual es incorrecta.',
+    'date' => 'El campo :attribute no es una fecha válida.',
+    'email' => 'El campo :attribute debe ser una dirección de correo válida.',
+    'max' => [
+        'string' => 'El campo :attribute no debe tener más de :max caracteres.',
+    ],
+    'min' => [
+        'string' => 'El campo :attribute debe tener al menos :min caracteres.',
+    ],
+    'numeric' => 'El campo :attribute debe ser un número.',
+    'required' => 'El campo :attribute es obligatorio.',
+    'required_if' => 'El campo :attribute es obligatorio cuando :other es :value.',
+    'same' => 'El campo :attribute debe coincidir con :other.',
+    'string' => 'El campo :attribute debe ser una cadena de texto.',
+    'unique' => 'El valor de :attribute ya está en uso.',
+
+    'attributes' => [
+        'academic_section_id' => 'sección',
+        'code' => 'código',
+        'current_password' => 'contraseña actual',
+        'description' => 'descripción',
+        'due_date' => 'fecha límite',
+        'email' => 'correo electrónico',
+        'end_time' => 'hora fin',
+        'name' => 'nombre',
+        'new_password' => 'nueva contraseña',
+        'password' => 'contraseña',
+        'password_confirmation' => 'confirmación de contraseña',
+        'published_at' => 'fecha de publicación',
+        'role' => 'rol',
+        'school_year' => 'año escolar',
+        'start_time' => 'hora inicio',
+        'subject_id' => 'materia',
+        'teacher_id' => 'docente',
+        'teaching_assignment_id' => 'asignación docente',
+        'title' => 'título',
+        'user_id' => 'usuario',
+        'weekday' => 'día',
+    ],
+];
