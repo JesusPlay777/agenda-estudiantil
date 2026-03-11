@@ -22,6 +22,21 @@ class SubjectResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('ui.resources.subject.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('ui.resources.subject.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('ui.resources.subject.plural');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return SubjectForm::configure($schema);

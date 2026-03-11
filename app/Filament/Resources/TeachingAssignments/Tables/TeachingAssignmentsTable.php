@@ -16,18 +16,24 @@ class TeachingAssignmentsTable
         return $table
             ->columns([
                 TextColumn::make('academicSection.name')
+                    ->label(__('ui.fields.academic_section'))
                     ->searchable(),
                 TextColumn::make('subject.name')
+                    ->label(__('ui.fields.subject'))
                     ->searchable(),
                 TextColumn::make('teacher.name')
+                    ->label(__('ui.fields.teacher'))
                     ->searchable(),
                 IconColumn::make('is_active')
+                    ->label(__('ui.fields.is_active'))
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label(__('ui.fields.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('ui.fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

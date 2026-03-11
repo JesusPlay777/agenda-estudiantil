@@ -22,6 +22,21 @@ class AcademicSectionResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('ui.resources.academic_section.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('ui.resources.academic_section.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('ui.resources.academic_section.plural');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return AcademicSectionForm::configure($schema);

@@ -16,16 +16,21 @@ class AcademicSectionsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('ui.fields.name'))
                     ->searchable(),
                 TextColumn::make('school_year')
+                    ->label(__('ui.fields.school_year'))
                     ->searchable(),
                 IconColumn::make('is_active')
+                    ->label(__('ui.fields.is_active'))
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label(__('ui.fields.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('ui.fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

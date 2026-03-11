@@ -17,6 +17,23 @@
 
             <flux:spacer />
 
+            <form method="POST" action="{{ route('locale.switch') }}" class="hidden sm:block me-2">
+                @csrf
+                <label for="app-locale" class="sr-only">{{ __('ui.locale.label') }}</label>
+                <select
+                    id="app-locale"
+                    name="locale"
+                    onchange="this.form.submit()"
+                    class="h-10 rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500/30 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                >
+                    @foreach (config('app.supported_locales', []) as $localeCode => $localeLabel)
+                        <option value="{{ $localeCode }}" @selected(app()->getLocale() === $localeCode)>
+                            {{ $localeLabel }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+
             <flux:navbar class="me-1.5 space-x-0.5 rtl:space-x-reverse py-0!">
                 <flux:tooltip :content="__('Search')" position="bottom">
                     <flux:navbar.item class="!h-10 [&>div>svg]:size-5" icon="magnifying-glass" href="#" :label="__('Search')" />
@@ -69,6 +86,27 @@
                     {{ __('Documentation') }}
                 </flux:sidebar.item>
             </flux:sidebar.nav>
+
+            <div class="p-4">
+                <form method="POST" action="{{ route('locale.switch') }}">
+                    @csrf
+                    <label for="app-locale-mobile" class="mb-2 block text-xs font-medium text-zinc-600 dark:text-zinc-300">
+                        {{ __('ui.locale.label') }}
+                    </label>
+                    <select
+                        id="app-locale-mobile"
+                        name="locale"
+                        onchange="this.form.submit()"
+                        class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500/30 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                    >
+                        @foreach (config('app.supported_locales', []) as $localeCode => $localeLabel)
+                            <option value="{{ $localeCode }}" @selected(app()->getLocale() === $localeCode)>
+                                {{ $localeLabel }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+            </div>
         </flux:sidebar>
 
         {{ $slot }}

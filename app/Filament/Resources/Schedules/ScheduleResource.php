@@ -20,6 +20,21 @@ class ScheduleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('ui.resources.schedule.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('ui.resources.schedule.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('ui.resources.schedule.plural');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ScheduleForm::configure($schema);

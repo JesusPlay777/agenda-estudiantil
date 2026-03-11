@@ -16,16 +16,21 @@ class SubjectsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('ui.fields.name'))
                     ->searchable(),
                 TextColumn::make('code')
+                    ->label(__('ui.fields.code'))
                     ->searchable(),
                 IconColumn::make('is_active')
+                    ->label(__('ui.fields.is_active'))
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label(__('ui.fields.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('ui.fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

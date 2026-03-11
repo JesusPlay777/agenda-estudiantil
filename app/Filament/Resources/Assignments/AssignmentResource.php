@@ -22,6 +22,21 @@ class AssignmentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('ui.resources.assignment.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('ui.resources.assignment.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('ui.resources.assignment.plural');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return AssignmentForm::configure($schema);

@@ -13,9 +13,12 @@ class SubjectForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label(__('ui.fields.name'))
                     ->required(),
-                TextInput::make('code'),
+                TextInput::make('code')
+                    ->label(__('ui.fields.code')),
                 Toggle::make('is_active')
+                    ->label(__('ui.fields.is_active'))
                     ->required(),
             ]);
     }

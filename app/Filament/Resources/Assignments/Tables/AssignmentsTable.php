@@ -16,22 +16,29 @@ class AssignmentsTable
         return $table
             ->columns([
                 TextColumn::make('teachingAssignment.id')
+                    ->label(__('ui.fields.teaching_assignment'))
                     ->searchable(),
                 TextColumn::make('title')
+                    ->label(__('ui.fields.title'))
                     ->searchable(),
                 TextColumn::make('due_date')
+                    ->label(__('ui.fields.due_date'))
                     ->date()
                     ->sortable(),
                 TextColumn::make('published_at')
+                    ->label(__('ui.fields.published_at'))
                     ->dateTime()
                     ->sortable(),
                 IconColumn::make('is_active')
+                    ->label(__('ui.fields.is_active'))
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label(__('ui.fields.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('ui.fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

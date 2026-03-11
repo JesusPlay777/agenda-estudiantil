@@ -20,6 +20,21 @@ class TeachingAssignmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('ui.resources.teaching_assignment.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('ui.resources.teaching_assignment.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('ui.resources.teaching_assignment.plural');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return TeachingAssignmentForm::configure($schema);
