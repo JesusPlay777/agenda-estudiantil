@@ -31,10 +31,20 @@ return [
             'plural' => 'tareas',
             'navigation' => 'Tareas',
         ],
+        'user' => [
+            'singular' => 'usuario',
+            'plural' => 'usuarios',
+            'navigation' => 'Usuarios',
+        ],
     ],
 
     'fields' => [
         'name' => 'Nombre',
+        'email' => 'Correo electrónico',
+        'role' => 'Rol',
+        'password' => 'Contraseña',
+        'password_confirmation' => 'Confirmación de contraseña',
+        'email_verified' => 'Correo verificado',
         'school_year' => 'Año escolar',
         'code' => 'Código',
         'is_active' => 'Activo',
@@ -66,5 +76,11 @@ return [
         'none_subject' => 'Sin materia',
         'none_teacher' => 'Sin docente',
         'format' => 'Sección: :section | Materia: :subject | Docente: :teacher',
+    ],
+
+    'roles' => [
+        'admin' => 'Administrador',
+        'teacher' => 'Docente',
+        'student' => 'Estudiante',
     ],
 ];

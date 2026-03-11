@@ -31,10 +31,20 @@ return [
             'plural' => 'Assignments',
             'navigation' => 'Assignments',
         ],
+        'user' => [
+            'singular' => 'User',
+            'plural' => 'Users',
+            'navigation' => 'Users',
+        ],
     ],
 
     'fields' => [
         'name' => 'Name',
+        'email' => 'Email',
+        'role' => 'Role',
+        'password' => 'Password',
+        'password_confirmation' => 'Password confirmation',
+        'email_verified' => 'Email verified',
         'school_year' => 'School year',
         'code' => 'Code',
         'is_active' => 'Active',
@@ -66,5 +76,11 @@ return [
         'none_subject' => 'No subject',
         'none_teacher' => 'No teacher',
         'format' => 'Section: :section | Subject: :subject | Teacher: :teacher',
+    ],
+
+    'roles' => [
+        'admin' => 'Admin',
+        'teacher' => 'Teacher',
+        'student' => 'Student',
     ],
 ];

@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Dashboard\StudentDashboardController;
+use App\Http\Controllers\Dashboard\TeacherAssignmentController;
+use App\Http\Controllers\Dashboard\TeacherDashboardController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,14 +36,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->prefix('teacher')
         ->as('teacher.')
         ->group(function () {
-            Route::view('dashboard', 'dashboards.teacher')->name('dashboard');
+            Route::get('dashboard', TeacherDashboardController::class)->name('dashboard');
+            Route::get('assignments', [TeacherAssignmentController::class, 'index'])->name('assignments.index');
+            Route::get('assignments/create', [TeacherAssignmentController::class, 'create'])->name('assignments.create');
+            Route::post('assignments', [TeacherAssignmentController::class, 'store'])->name('assignments.store');
+            Route::get('assignments/{assignment}/edit', [TeacherAssignmentController::class, 'edit'])->name('assignments.edit');
+            Route::put('assignments/{assignment}', [TeacherAssignmentController::class, 'update'])->name('assignments.update');
+            Route::delete('assignments/{assignment}', [TeacherAssignmentController::class, 'destroy'])->name('assignments.destroy');
         });
 
     Route::middleware(['role:student'])
         ->prefix('student')
         ->as('student.')
         ->group(function () {
-            Route::view('dashboard', 'dashboards.student')->name('dashboard');
+            Route::get('dashboard', StudentDashboardController::class)->name('dashboard');
         });
 });
 
