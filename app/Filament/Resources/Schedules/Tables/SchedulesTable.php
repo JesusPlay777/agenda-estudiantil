@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Schedules\Tables;
 
+use App\Models\Schedule;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -16,6 +17,17 @@ class SchedulesTable
             ->columns([
                 TextColumn::make('teachingAssignment.id')
                     ->label(__('ui.fields.teaching_assignment'))
+                    ->getStateUsing(
+                        fn (Schedule $record): string => __(
+                            'ui.teaching_assignment_option.format',
+                            [
+                                'section' => $record->teachingAssignment?->academicSection?->name ?? __('ui.teaching_assignment_option.none_section'),
+                                'subject' => $record->teachingAssignment?->subject?->name ?? __('ui.teaching_assignment_option.none_subject'),
+                                'teacher' => $record->teachingAssignment?->teacher?->name ?? __('ui.teaching_assignment_option.none_teacher'),
+                            ],
+                        ),
+                    )
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('weekday')
                     ->label(__('ui.fields.weekday'))

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Assignments\Tables;
 
+use App\Models\Assignment;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -17,6 +18,17 @@ class AssignmentsTable
             ->columns([
                 TextColumn::make('teachingAssignment.id')
                     ->label(__('ui.fields.teaching_assignment'))
+                    ->getStateUsing(
+                        fn (Assignment $record): string => __(
+                            'ui.teaching_assignment_option.format',
+                            [
+                                'section' => $record->teachingAssignment?->academicSection?->name ?? __('ui.teaching_assignment_option.none_section'),
+                                'subject' => $record->teachingAssignment?->subject?->name ?? __('ui.teaching_assignment_option.none_subject'),
+                                'teacher' => $record->teachingAssignment?->teacher?->name ?? __('ui.teaching_assignment_option.none_teacher'),
+                            ],
+                        ),
+                    )
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('title')
                     ->label(__('ui.fields.title'))
