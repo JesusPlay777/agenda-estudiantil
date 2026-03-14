@@ -37,6 +37,13 @@ class UsersTable
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('studentProfile.academicSection.name')
+                    ->label(__('ui.fields.academic_section'))
+                    ->getStateUsing(fn (User $record): string => $record->studentProfile?->academicSection
+                        ? $record->studentProfile->academicSection->name.' - '.$record->studentProfile->academicSection->school_year
+                        : '—')
+                    ->toggleable(),
+
                 IconColumn::make('email_verified_at')
                     ->label(__('ui.fields.email_verified'))
                     ->boolean()
