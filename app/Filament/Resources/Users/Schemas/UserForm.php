@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Models\AcademicSection;
+use App\Models\Subject;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -50,6 +51,10 @@ class UserForm
                             $set('identity_card', null);
                             $set('phone', null);
                         }
+
+                        if ($state !== User::ROLE_TEACHER) {
+                            $set('teacher_subject_ids', []);
+                        }
                     })
                     ->native(false),
 
@@ -87,6 +92,21 @@ class UserForm
                     ->tel()
                     ->visible(fn (Get $get): bool => in_array($get('role'), [User::ROLE_STUDENT, User::ROLE_TEACHER], true))
                     ->maxLength(30),
+
+                Select::make('teacher_subject_ids')
+                    ->label(__('ui.fields.teacher_specializations'))
+                    ->options(fn (): array => Subject::query()
+                        ->where('is_active', true)
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->all())
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->visible(fn (Get $get): bool => $get('role') === User::ROLE_TEACHER)
+                    ->required(fn (Get $get): bool => $get('role') === User::ROLE_TEACHER)
+                    ->helperText(__('Select the subjects this teacher is allowed to teach.'))
+                    ->native(false),
 
                 TextInput::make('password')
                     ->label(__('ui.fields.password'))

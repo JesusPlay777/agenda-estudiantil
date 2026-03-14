@@ -15,6 +15,11 @@ trait SynchronizesStudentProfile
 
     protected ?string $profilePhone = null;
 
+    /**
+     * @var array<int>
+     */
+    protected array $teacherSubjectIds = [];
+
     protected function rememberStudentAcademicSectionId(?int $academicSectionId): void
     {
         $this->studentAcademicSectionId = filled($academicSectionId) ? $academicSectionId : null;
@@ -28,6 +33,18 @@ trait SynchronizesStudentProfile
     protected function rememberProfilePhone(?string $phone): void
     {
         $this->profilePhone = filled($phone) ? $phone : null;
+    }
+
+    /**
+     * @param  array<int|string>|null  $subjectIds
+     */
+    protected function rememberTeacherSubjectIds(?array $subjectIds): void
+    {
+        $this->teacherSubjectIds = collect($subjectIds ?? [])
+            ->filter(fn ($subjectId): bool => filled($subjectId))
+            ->map(fn ($subjectId): int => (int) $subjectId)
+            ->values()
+            ->all();
     }
 
     protected function synchronizeStudentProfile(User $user): void
@@ -55,6 +72,7 @@ trait SynchronizesStudentProfile
             );
 
             $user->teacherProfile()?->delete();
+            $user->specializedSubjects()->sync([]);
 
             return;
         }
@@ -63,6 +81,12 @@ trait SynchronizesStudentProfile
             if (! filled($this->profileIdentityCard)) {
                 throw ValidationException::withMessages([
                     'data.identity_card' => __('validation.required', ['attribute' => __('ui.fields.identity_card')]),
+                ]);
+            }
+
+            if (! count($this->teacherSubjectIds)) {
+                throw ValidationException::withMessages([
+                    'data.teacher_subject_ids' => __('validation.required', ['attribute' => __('ui.fields.teacher_specializations')]),
                 ]);
             }
 
@@ -75,11 +99,13 @@ trait SynchronizesStudentProfile
             );
 
             $user->studentProfile()?->delete();
+            $user->specializedSubjects()->sync($this->teacherSubjectIds);
 
             return;
         }
 
         $user->studentProfile()?->delete();
         $user->teacherProfile()?->delete();
+        $user->specializedSubjects()->sync([]);
     }
 }

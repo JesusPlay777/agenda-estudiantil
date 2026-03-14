@@ -5,6 +5,7 @@ use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Models\AcademicSection;
 use App\Models\StudentProfile;
+use App\Models\Subject;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Livewire\Livewire;
@@ -18,6 +19,15 @@ function createAcademicSection(string $name, string $schoolYear = '2026-2027'): 
     return AcademicSection::create([
         'name' => $name,
         'school_year' => $schoolYear,
+        'is_active' => true,
+    ]);
+}
+
+function createSubject(string $name, ?string $code = null): Subject
+{
+    return Subject::create([
+        'name' => $name,
+        'code' => $code ?? strtoupper(substr($name, 0, 3)),
         'is_active' => true,
     ]);
 }
@@ -99,6 +109,7 @@ test('admin can update a students academic section from the user resource', func
 
 test('admin can create a teacher with identity card and phone from the user resource', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $subject = createSubject('Matematicas', 'MAT');
 
     $this->actingAs($admin);
 
@@ -109,6 +120,7 @@ test('admin can create a teacher with identity card and phone from the user reso
             'role' => User::ROLE_TEACHER,
             'identity_card' => 'v30000001',
             'phone' => '04241234567',
+            'teacher_subject_ids' => [$subject->id],
             'password' => 'password',
             'password_confirmation' => 'password',
         ])
@@ -128,12 +140,16 @@ test('admin can create a teacher with identity card and phone from the user reso
         'identity_card' => 'V30000001',
         'phone' => '04241234567',
     ]);
+
+    expect($teacher->specializedSubjects()->pluck('subjects.id')->all())
+        ->toBe([$subject->id]);
 });
 
 test('changing a student to teacher replaces the student profile with a teacher profile', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
     $section = createAcademicSection('3er Ano A');
+    $subject = createSubject('Historia Universal', 'HIS');
 
     StudentProfile::create([
         'user_id' => $student->id,
@@ -142,6 +158,8 @@ test('changing a student to teacher replaces the student profile with a teacher 
         'phone' => null,
     ]);
 
+    $this->actingAs($admin);
+
     Livewire::test(EditUser::class, ['record' => $student->getKey()])
         ->fillForm([
             'name' => $student->name,
@@ -149,6 +167,7 @@ test('changing a student to teacher replaces the student profile with a teacher 
             'role' => User::ROLE_TEACHER,
             'identity_card' => 'V40000002',
             'phone' => '04121230000',
+            'teacher_subject_ids' => [$subject->id],
             'password' => null,
             'password_confirmation' => null,
         ])
@@ -165,6 +184,9 @@ test('changing a student to teacher replaces the student profile with a teacher 
         'identity_card' => 'V40000002',
         'phone' => '04121230000',
     ]);
+
+    expect($student->fresh()->specializedSubjects()->pluck('subjects.id')->all())
+        ->toBe([$subject->id]);
 });
 
 test('identity card must use the V followed by numbers format', function () {
@@ -204,4 +226,24 @@ test('admin can filter users by role in the user list', function () {
         ->filterTable('role', User::ROLE_TEACHER)
         ->assertCanSeeTableRecords([$teacher])
         ->assertCanNotSeeTableRecords([$student, $admin]);
+});
+
+test('teacher specialization is required when creating a teacher from the user resource', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(CreateUser::class)
+        ->fillForm([
+            'name' => 'Teacher Without Specialization',
+            'email' => 'teacher-without-specialization@example.com',
+            'role' => User::ROLE_TEACHER,
+            'identity_card' => 'V55500001',
+            'phone' => '04145550001',
+            'teacher_subject_ids' => [],
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['teacher_subject_ids' => 'required']);
 });

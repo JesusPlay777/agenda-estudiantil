@@ -60,6 +60,8 @@ class AcademicDomainSeeder extends Seeder
             ->orderBy('name')
             ->get();
 
+        $teacher->specializedSubjects()->sync($subjects->pluck('id')->all());
+
         $seededAssignments = [];
         $seededHomework = [];
 
@@ -68,9 +70,11 @@ class AcademicDomainSeeder extends Seeder
                 [
                     'academic_section_id' => $section->id,
                     'subject_id' => $subject->id,
-                    'teacher_id' => $teacher->id,
                 ],
-                ['is_active' => true],
+                [
+                    'teacher_id' => $teacher->id,
+                    'is_active' => true,
+                ],
             );
 
             $seededAssignments[] = $teachingAssignment;

@@ -22,10 +22,12 @@ class CreateUser extends CreateRecord
         );
         $this->rememberProfileIdentityCard($data['identity_card'] ?? null);
         $this->rememberProfilePhone($data['phone'] ?? null);
+        $this->rememberTeacherSubjectIds($data['teacher_subject_ids'] ?? null);
 
         unset($data['academic_section_id']);
         unset($data['identity_card']);
         unset($data['phone']);
+        unset($data['teacher_subject_ids']);
 
         return $data;
     }

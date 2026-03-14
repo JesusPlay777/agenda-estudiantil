@@ -36,39 +36,27 @@
                 </div>
 
                 <div class="rounded-xl border border-neutral-200 p-4 dark:border-neutral-700">
-                    <h2 class="text-lg font-semibold">{{ __('Teachers') }}</h2>
+                    <h2 class="text-lg font-semibold">{{ __('Subjects and teachers') }}</h2>
+                    <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                        {{ __('Each subject appears with its assigned teacher.') }}
+                    </p>
 
-                    @if ($teachers->isEmpty())
-                        <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-300">{{ __('No teachers linked to your section yet.') }}</p>
+                    @if ($subjectTeachers->isEmpty())
+                        <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-300">{{ __('No subjects assigned to your section yet.') }}</p>
                     @else
                         <ul class="mt-3 space-y-2 text-sm">
-                            @foreach ($teachers as $teacher)
+                            @foreach ($subjectTeachers as $subjectTeacher)
                                 <li class="rounded-lg bg-neutral-100 px-3 py-2 dark:bg-neutral-800">
-                                    {{ $teacher->name }}
+                                    <span class="font-medium">{{ $subjectTeacher->subject?->name ?? '-' }}</span>
+                                    @if ($subjectTeacher->subject?->code)
+                                        <span class="text-neutral-500 dark:text-neutral-400">({{ $subjectTeacher->subject->code }})</span>
+                                    @endif
+                                    <span class="text-neutral-500 dark:text-neutral-400">- {{ $subjectTeacher->teacher?->name ?? '-' }}</span>
                                 </li>
                             @endforeach
                         </ul>
                     @endif
                 </div>
-            </div>
-
-            <div class="rounded-xl border border-neutral-200 p-4 dark:border-neutral-700">
-                <h2 class="text-lg font-semibold">{{ __('Subjects') }}</h2>
-
-                @if ($subjects->isEmpty())
-                    <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-300">{{ __('No subjects assigned to your section yet.') }}</p>
-                @else
-                    <ul class="mt-3 grid gap-2 md:grid-cols-2 lg:grid-cols-3 text-sm">
-                        @foreach ($subjects as $subject)
-                            <li class="rounded-lg bg-neutral-100 px-3 py-2 dark:bg-neutral-800">
-                                <span class="font-medium">{{ $subject->name }}</span>
-                                @if ($subject->code)
-                                    <span class="text-neutral-500 dark:text-neutral-400">({{ $subject->code }})</span>
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
             </div>
 
             <div class="rounded-xl border border-neutral-200 p-4 dark:border-neutral-700">

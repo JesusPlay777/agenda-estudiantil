@@ -29,8 +29,7 @@ class StudentDashboardController extends Controller
         if (! $studentProfile) {
             return view('dashboards.student', [
                 'studentProfile' => null,
-                'subjects' => collect(),
-                'teachers' => collect(),
+                'subjectTeachers' => collect(),
                 'schedules' => collect(),
                 'recentAssignments' => collect(),
                 'recentSubmissionsByAssignment' => collect(),
@@ -49,18 +48,9 @@ class StudentDashboardController extends Controller
 
         $assignmentIds = $teachingAssignments->pluck('id');
 
-        $subjects = $teachingAssignments
-            ->pluck('subject')
+        $subjectTeachers = $teachingAssignments
             ->filter()
-            ->unique('id')
-            ->sortBy('name')
-            ->values();
-
-        $teachers = $teachingAssignments
-            ->pluck('teacher')
-            ->filter()
-            ->unique('id')
-            ->sortBy('name')
+            ->sortBy(fn (TeachingAssignment $assignment): string => (string) $assignment->subject?->name)
             ->values();
 
         $weekdayOrder = [
@@ -113,8 +103,7 @@ class StudentDashboardController extends Controller
 
         return view('dashboards.student', [
             'studentProfile' => $studentProfile,
-            'subjects' => $subjects,
-            'teachers' => $teachers,
+            'subjectTeachers' => $subjectTeachers,
             'schedules' => $schedules,
             'recentAssignments' => $recentAssignments,
             'recentSubmissionsByAssignment' => $recentSubmissionsByAssignment,

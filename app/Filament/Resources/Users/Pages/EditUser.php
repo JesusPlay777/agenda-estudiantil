@@ -34,6 +34,9 @@ class EditUser extends EditRecord
             \App\Models\User::ROLE_TEACHER => $this->record->teacherProfile?->phone,
             default => null,
         };
+        $data['teacher_subject_ids'] = $this->record->specializedSubjects()
+            ->pluck('subjects.id')
+            ->all();
 
         return $data;
     }
@@ -47,10 +50,12 @@ class EditUser extends EditRecord
         );
         $this->rememberProfileIdentityCard($data['identity_card'] ?? null);
         $this->rememberProfilePhone($data['phone'] ?? null);
+        $this->rememberTeacherSubjectIds($data['teacher_subject_ids'] ?? null);
 
         unset($data['academic_section_id']);
         unset($data['identity_card']);
         unset($data['phone']);
+        unset($data['teacher_subject_ids']);
 
         return $data;
     }

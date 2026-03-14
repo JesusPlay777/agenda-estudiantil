@@ -46,6 +46,7 @@ return [
         'password_confirmation' => 'Password confirmation',
         'identity_card' => 'Identity card',
         'phone' => 'Phone number',
+        'teacher_specializations' => 'Teaching subjects',
         'email_verified' => 'Email verified',
         'school_year' => 'School year',
         'code' => 'Code',

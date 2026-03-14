@@ -6,6 +6,7 @@ namespace App\Models;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -77,6 +78,16 @@ class User extends Authenticatable implements FilamentUser
     public function assignmentSubmissions(): HasMany
     {
         return $this->hasMany(AssignmentSubmission::class, 'student_id');
+    }
+
+    public function specializedSubjects(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Subject::class,
+            'teacher_subjects',
+            'teacher_id',
+            'subject_id',
+        )->withTimestamps();
     }
 
     public function isAdmin(): bool

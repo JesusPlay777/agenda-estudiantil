@@ -161,5 +161,11 @@
     "Submitted on time": "Entregada a tiempo",
     "Submitted late": "Entregada tarde",
     "Students can belong to only one academic section.": "Los estudiantes solo pueden pertenecer a una sección académica.",
-    "Identity card format: V12345678.": "Formato de cédula: V12345678."
+    "Identity card format: V12345678.": "Formato de cédula: V12345678.",
+    "Select the subjects this teacher is allowed to teach.": "Selecciona las materias que este docente puede impartir.",
+    "Only teachers specialized in the selected subject are shown.": "Solo se muestran docentes especializados en la materia seleccionada.",
+    "Each subject appears with its assigned teacher.": "Cada materia aparece junto con el docente asignado.",
+    "Subjects and teachers": "Materias y docentes",
+    "A section can have only one teacher per subject.": "Una sección solo puede tener un docente por materia.",
+    "The selected teacher is not authorized to teach this subject.": "El docente seleccionado no está autorizado para impartir esta materia."
 }

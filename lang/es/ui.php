@@ -46,6 +46,7 @@ return [
         'password_confirmation' => 'Confirmación de contraseña',
         'identity_card' => 'Cédula',
         'phone' => 'Número de teléfono',
+        'teacher_specializations' => 'Especialidades',
         'email_verified' => 'Correo verificado',
         'school_year' => 'Año escolar',
         'code' => 'Código',
