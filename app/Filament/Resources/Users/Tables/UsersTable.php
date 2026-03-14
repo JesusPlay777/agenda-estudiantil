@@ -6,6 +6,7 @@ use App\Models\User;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class UsersTable
@@ -63,7 +64,14 @@ class UsersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('role')
+                    ->label(__('ui.fields.role'))
+                    ->options([
+                        User::ROLE_ADMIN => __('ui.roles.admin'),
+                        User::ROLE_TEACHER => __('ui.roles.teacher'),
+                        User::ROLE_STUDENT => __('ui.roles.student'),
+                    ])
+                    ->native(false),
             ])
             ->recordActions([
                 EditAction::make(),

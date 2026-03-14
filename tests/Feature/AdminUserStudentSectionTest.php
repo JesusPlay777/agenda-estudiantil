@@ -2,6 +2,7 @@
 
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
+use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Models\AcademicSection;
 use App\Models\StudentProfile;
 use App\Models\User;
@@ -185,4 +186,22 @@ test('identity card must use the V followed by numbers format', function () {
         ])
         ->call('create')
         ->assertHasFormErrors(['identity_card' => 'regex']);
+});
+
+test('admin can filter users by role in the user list', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN, 'name' => 'Admin Filter']);
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER, 'name' => 'Teacher Filter']);
+    $student = User::factory()->create(['role' => User::ROLE_STUDENT, 'name' => 'Student Filter']);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListUsers::class)
+        ->assertTableFilterExists('role')
+        ->filterTable('role', User::ROLE_STUDENT)
+        ->assertCanSeeTableRecords([$student])
+        ->assertCanNotSeeTableRecords([$teacher, $admin])
+        ->resetTableFilters()
+        ->filterTable('role', User::ROLE_TEACHER)
+        ->assertCanSeeTableRecords([$teacher])
+        ->assertCanNotSeeTableRecords([$student, $admin]);
 });
