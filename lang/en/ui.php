@@ -44,6 +44,8 @@ return [
         'role' => 'Role',
         'password' => 'Password',
         'password_confirmation' => 'Password confirmation',
+        'identity_card' => 'Identity card',
+        'phone' => 'Phone number',
         'email_verified' => 'Email verified',
         'school_year' => 'School year',
         'code' => 'Code',

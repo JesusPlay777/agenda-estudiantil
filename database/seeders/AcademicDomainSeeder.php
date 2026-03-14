@@ -39,14 +39,18 @@ class AcademicDomainSeeder extends Seeder
 
         TeacherProfile::updateOrCreate(
             ['user_id' => $teacher->id],
-            ['phone' => null],
+            [
+                'identity_card' => 'V10000001',
+                'phone' => '04121234567',
+            ],
         );
 
         StudentProfile::updateOrCreate(
             ['user_id' => $student->id],
             [
                 'academic_section_id' => $section->id,
-                'phone' => null,
+                'identity_card' => 'V10000002',
+                'phone' => '04141234567',
             ],
         );
 

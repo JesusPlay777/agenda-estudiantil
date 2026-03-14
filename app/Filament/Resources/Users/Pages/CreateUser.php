@@ -20,8 +20,12 @@ class CreateUser extends CreateRecord
                 ? (int) $data['academic_section_id']
                 : null,
         );
+        $this->rememberProfileIdentityCard($data['identity_card'] ?? null);
+        $this->rememberProfilePhone($data['phone'] ?? null);
 
         unset($data['academic_section_id']);
+        unset($data['identity_card']);
+        unset($data['phone']);
 
         return $data;
     }

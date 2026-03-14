@@ -33,6 +33,8 @@ test('admin can create a student with an academic section from the user resource
             'email' => 'student-admin-created@example.com',
             'role' => User::ROLE_STUDENT,
             'academic_section_id' => $section->id,
+            'identity_card' => 'v12345678',
+            'phone' => '04141234567',
             'password' => 'password',
             'password_confirmation' => 'password',
         ])
@@ -50,6 +52,8 @@ test('admin can create a student with an academic section from the user resource
     $this->assertDatabaseHas('student_profiles', [
         'user_id' => $student->id,
         'academic_section_id' => $section->id,
+        'identity_card' => 'V12345678',
+        'phone' => '04141234567',
     ]);
 });
 
@@ -63,6 +67,7 @@ test('admin can update a students academic section from the user resource', func
     StudentProfile::create([
         'user_id' => $student->id,
         'academic_section_id' => $sectionA->id,
+        'identity_card' => 'V20000001',
         'phone' => null,
     ]);
 
@@ -74,6 +79,8 @@ test('admin can update a students academic section from the user resource', func
             'email' => $student->email,
             'role' => User::ROLE_STUDENT,
             'academic_section_id' => $sectionB->id,
+            'identity_card' => 'V20000002',
+            'phone' => '04161234567',
             'password' => null,
             'password_confirmation' => null,
         ])
@@ -84,10 +91,45 @@ test('admin can update a students academic section from the user resource', func
     $this->assertDatabaseHas('student_profiles', [
         'user_id' => $student->id,
         'academic_section_id' => $sectionB->id,
+        'identity_card' => 'V20000002',
+        'phone' => '04161234567',
     ]);
 });
 
-test('changing a student to teacher removes their student profile from the user resource', function () {
+test('admin can create a teacher with identity card and phone from the user resource', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(CreateUser::class)
+        ->fillForm([
+            'name' => 'Teacher Admin Created',
+            'email' => 'teacher-admin-created@example.com',
+            'role' => User::ROLE_TEACHER,
+            'identity_card' => 'v30000001',
+            'phone' => '04241234567',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertNotified()
+        ->assertRedirect();
+
+    $teacher = User::query()
+        ->where('email', 'teacher-admin-created@example.com')
+        ->firstOrFail();
+
+    expect($teacher->role)->toBe(User::ROLE_TEACHER);
+
+    $this->assertDatabaseHas('teacher_profiles', [
+        'user_id' => $teacher->id,
+        'identity_card' => 'V30000001',
+        'phone' => '04241234567',
+    ]);
+});
+
+test('changing a student to teacher replaces the student profile with a teacher profile', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
     $section = createAcademicSection('3er Ano A');
@@ -95,17 +137,17 @@ test('changing a student to teacher removes their student profile from the user 
     StudentProfile::create([
         'user_id' => $student->id,
         'academic_section_id' => $section->id,
+        'identity_card' => 'V40000001',
         'phone' => null,
     ]);
-
-    $this->actingAs($admin);
 
     Livewire::test(EditUser::class, ['record' => $student->getKey()])
         ->fillForm([
             'name' => $student->name,
             'email' => $student->email,
             'role' => User::ROLE_TEACHER,
-            'academic_section_id' => null,
+            'identity_card' => 'V40000002',
+            'phone' => '04121230000',
             'password' => null,
             'password_confirmation' => null,
         ])
@@ -116,4 +158,31 @@ test('changing a student to teacher removes their student profile from the user 
     $this->assertDatabaseMissing('student_profiles', [
         'user_id' => $student->id,
     ]);
+
+    $this->assertDatabaseHas('teacher_profiles', [
+        'user_id' => $student->id,
+        'identity_card' => 'V40000002',
+        'phone' => '04121230000',
+    ]);
+});
+
+test('identity card must use the V followed by numbers format', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $section = createAcademicSection('2do Ano A');
+
+    $this->actingAs($admin);
+
+    Livewire::test(CreateUser::class)
+        ->fillForm([
+            'name' => 'Student Invalid Identity Card',
+            'email' => 'invalid-identity-card@example.com',
+            'role' => User::ROLE_STUDENT,
+            'academic_section_id' => $section->id,
+            'identity_card' => 'J12345678',
+            'phone' => '04140000000',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['identity_card' => 'regex']);
 });

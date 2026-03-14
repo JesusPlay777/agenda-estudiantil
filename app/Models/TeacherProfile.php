@@ -9,6 +9,7 @@ class TeacherProfile extends Model
 {
     protected $fillable = [
         'user_id',
+        'identity_card',
         'phone',
     ];
 

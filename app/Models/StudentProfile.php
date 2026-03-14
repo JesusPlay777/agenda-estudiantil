@@ -10,6 +10,7 @@ class StudentProfile extends Model
     protected $fillable = [
         'user_id',
         'academic_section_id',
+        'identity_card',
         'phone',
     ];
 

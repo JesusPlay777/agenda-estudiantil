@@ -24,6 +24,16 @@ class EditUser extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $data['academic_section_id'] = $this->record->studentProfile?->academic_section_id;
+        $data['identity_card'] = match ($this->record->role) {
+            \App\Models\User::ROLE_STUDENT => $this->record->studentProfile?->identity_card,
+            \App\Models\User::ROLE_TEACHER => $this->record->teacherProfile?->identity_card,
+            default => null,
+        };
+        $data['phone'] = match ($this->record->role) {
+            \App\Models\User::ROLE_STUDENT => $this->record->studentProfile?->phone,
+            \App\Models\User::ROLE_TEACHER => $this->record->teacherProfile?->phone,
+            default => null,
+        };
 
         return $data;
     }
@@ -35,8 +45,12 @@ class EditUser extends EditRecord
                 ? (int) $data['academic_section_id']
                 : null,
         );
+        $this->rememberProfileIdentityCard($data['identity_card'] ?? null);
+        $this->rememberProfilePhone($data['phone'] ?? null);
 
         unset($data['academic_section_id']);
+        unset($data['identity_card']);
+        unset($data['phone']);
 
         return $data;
     }

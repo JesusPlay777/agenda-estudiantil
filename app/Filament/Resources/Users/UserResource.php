@@ -51,7 +51,10 @@ class UserResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with('studentProfile.academicSection');
+            ->with([
+                'studentProfile.academicSection',
+                'teacherProfile',
+            ]);
     }
 
     public static function getRelations(): array

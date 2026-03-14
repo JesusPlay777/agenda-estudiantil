@@ -45,6 +45,11 @@ class UserForm
                         if ($state !== User::ROLE_STUDENT) {
                             $set('academic_section_id', null);
                         }
+
+                        if (! in_array($state, [User::ROLE_STUDENT, User::ROLE_TEACHER], true)) {
+                            $set('identity_card', null);
+                            $set('phone', null);
+                        }
                     })
                     ->native(false),
 
@@ -66,6 +71,22 @@ class UserForm
                     ->helperText(__('Students can belong to only one academic section.'))
                     ->rules(['nullable', 'integer', 'exists:academic_sections,id'])
                     ->native(false),
+
+                TextInput::make('identity_card')
+                    ->label(__('ui.fields.identity_card'))
+                    ->placeholder('V12345678')
+                    ->helperText(__('Identity card format: V12345678.'))
+                    ->visible(fn (Get $get): bool => in_array($get('role'), [User::ROLE_STUDENT, User::ROLE_TEACHER], true))
+                    ->required(fn (Get $get): bool => in_array($get('role'), [User::ROLE_STUDENT, User::ROLE_TEACHER], true))
+                    ->rules(['nullable', 'regex:/^[Vv][0-9]+$/', 'max:20'])
+                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? strtoupper($state) : null)
+                    ->maxLength(20),
+
+                TextInput::make('phone')
+                    ->label(__('ui.fields.phone'))
+                    ->tel()
+                    ->visible(fn (Get $get): bool => in_array($get('role'), [User::ROLE_STUDENT, User::ROLE_TEACHER], true))
+                    ->maxLength(30),
 
                 TextInput::make('password')
                     ->label(__('ui.fields.password'))
