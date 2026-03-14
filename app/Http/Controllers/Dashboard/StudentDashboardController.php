@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Dashboard\Concerns\ResolvesAssignmentSubmissionStatus;
 use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use App\Models\Schedule;
 use App\Models\StudentProfile;
 use App\Models\TeachingAssignment;
@@ -12,6 +14,8 @@ use Illuminate\Contracts\View\View;
 
 class StudentDashboardController extends Controller
 {
+    use ResolvesAssignmentSubmissionStatus;
+
     public function __invoke(): View
     {
         /** @var User $user */
@@ -29,6 +33,8 @@ class StudentDashboardController extends Controller
                 'teachers' => collect(),
                 'schedules' => collect(),
                 'recentAssignments' => collect(),
+                'recentSubmissionsByAssignment' => collect(),
+                'recentStatusesByAssignment' => collect(),
             ]);
         }
 
@@ -90,12 +96,29 @@ class StudentDashboardController extends Controller
             ->limit(8)
             ->get();
 
+        $recentSubmissionsByAssignment = AssignmentSubmission::query()
+            ->where('student_id', $user->id)
+            ->whereIn('assignment_id', $recentAssignments->pluck('id'))
+            ->get()
+            ->keyBy('assignment_id');
+
+        $recentStatusesByAssignment = $recentAssignments
+            ->mapWithKeys(function (Assignment $assignment) use ($recentSubmissionsByAssignment): array {
+                $submission = $recentSubmissionsByAssignment->get($assignment->id);
+
+                return [
+                    $assignment->id => $this->resolveSubmissionStatus($assignment, $submission),
+                ];
+            });
+
         return view('dashboards.student', [
             'studentProfile' => $studentProfile,
             'subjects' => $subjects,
             'teachers' => $teachers,
             'schedules' => $schedules,
             'recentAssignments' => $recentAssignments,
+            'recentSubmissionsByAssignment' => $recentSubmissionsByAssignment,
+            'recentStatusesByAssignment' => $recentStatusesByAssignment,
         ]);
     }
 }

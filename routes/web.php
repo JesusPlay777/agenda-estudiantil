@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Dashboard\StudentDashboardController;
+use App\Http\Controllers\Dashboard\StudentAssignmentController;
 use App\Http\Controllers\Dashboard\TeacherAssignmentController;
 use App\Http\Controllers\Dashboard\TeacherDashboardController;
 use App\Models\User;
@@ -20,7 +21,11 @@ Route::post('/locale', function (Request $request) {
     return back();
 })->name('locale.switch');
 
-Route::view('/', 'welcome')->name('home');
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
+})->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function (Request $request) {
@@ -50,6 +55,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->as('student.')
         ->group(function () {
             Route::get('dashboard', StudentDashboardController::class)->name('dashboard');
+            Route::get('assignments', [StudentAssignmentController::class, 'index'])->name('assignments.index');
+            Route::get('assignments/{assignment}', [StudentAssignmentController::class, 'show'])->name('assignments.show');
+            Route::post('assignments/{assignment}/submit', [StudentAssignmentController::class, 'submit'])->name('assignments.submit');
         });
 });
 

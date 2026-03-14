@@ -13,6 +13,15 @@
                 <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard', 'teacher.dashboard', 'student.dashboard')" wire:navigate>
                     {{ __('Dashboard') }}
                 </flux:navbar.item>
+                @if (auth()->user()->isTeacher())
+                    <flux:navbar.item icon="clipboard-document-list" :href="route('teacher.assignments.index')" :current="request()->routeIs('teacher.assignments.*')" wire:navigate>
+                        {{ __('Assignments') }}
+                    </flux:navbar.item>
+                @elseif (auth()->user()->isStudent())
+                    <flux:navbar.item icon="clipboard-document-list" :href="route('student.assignments.index')" :current="request()->routeIs('student.assignments.*')" wire:navigate>
+                        {{ __('Assignments') }}
+                    </flux:navbar.item>
+                @endif
             </flux:navbar>
 
             <flux:spacer />
@@ -75,6 +84,10 @@
                     </flux:sidebar.item>
                     @if (auth()->user()->isTeacher())
                         <flux:sidebar.item icon="clipboard-document-list" :href="route('teacher.assignments.index')" :current="request()->routeIs('teacher.assignments.*')" wire:navigate>
+                            {{ __('Assignments') }}
+                        </flux:sidebar.item>
+                    @elseif (auth()->user()->isStudent())
+                        <flux:sidebar.item icon="clipboard-document-list" :href="route('student.assignments.index')" :current="request()->routeIs('student.assignments.*')" wire:navigate>
                             {{ __('Assignments') }}
                         </flux:sidebar.item>
                     @endif

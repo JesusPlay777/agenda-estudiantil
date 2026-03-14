@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\AcademicSection;
 use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use App\Models\Schedule;
 use App\Models\StudentProfile;
 use App\Models\Subject;
@@ -56,6 +57,7 @@ class AcademicDomainSeeder extends Seeder
             ->get();
 
         $seededAssignments = [];
+        $seededHomework = [];
 
         foreach ($subjects as $subject) {
             $teachingAssignment = TeachingAssignment::updateOrCreate(
@@ -89,7 +91,7 @@ class AcademicDomainSeeder extends Seeder
                 [],
             );
 
-            Assignment::updateOrCreate(
+            $assignment = Assignment::updateOrCreate(
                 [
                     'teaching_assignment_id' => $teachingAssignment->id,
                     'title' => 'Tarea diagnostica - '.$teachingAssignment->subject->name,
@@ -99,6 +101,23 @@ class AcademicDomainSeeder extends Seeder
                     'due_date' => now()->addDays(7 + ($index * 2))->toDateString(),
                     'published_at' => now(),
                     'is_active' => true,
+                ],
+            );
+
+            $seededHomework[] = $assignment;
+        }
+
+        $firstHomework = $seededHomework[0] ?? null;
+
+        if ($firstHomework) {
+            AssignmentSubmission::updateOrCreate(
+                [
+                    'assignment_id' => $firstHomework->id,
+                    'student_id' => $student->id,
+                ],
+                [
+                    'submission_text' => 'Entrega inicial de diagnostico del estudiante.',
+                    'submitted_at' => now()->subDay(),
                 ],
             );
         }

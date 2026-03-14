@@ -19,6 +19,10 @@
                         <flux:sidebar.item icon="clipboard-document-list" :href="route('teacher.assignments.index')" :current="request()->routeIs('teacher.assignments.*')" wire:navigate>
                             {{ __('Assignments') }}
                         </flux:sidebar.item>
+                    @elseif (auth()->user()->isStudent())
+                        <flux:sidebar.item icon="clipboard-document-list" :href="route('student.assignments.index')" :current="request()->routeIs('student.assignments.*')" wire:navigate>
+                            {{ __('Assignments') }}
+                        </flux:sidebar.item>
                     @endif
                 </flux:sidebar.group>
             </flux:sidebar.nav>
@@ -34,6 +38,13 @@
                     {{ __('Documentation') }}
                 </flux:sidebar.item>
             </flux:sidebar.nav>
+
+            <div class="hidden lg:block border-t border-zinc-200 px-4 py-4 dark:border-zinc-700">
+                <x-app-language-switcher
+                    id="app-sidebar-locale"
+                    class="space-y-2"
+                />
+            </div>
 
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>
@@ -67,13 +78,17 @@
                         </div>
                     </flux:menu.radio.group>
 
-                    <flux:menu.separator />
-
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
                             {{ __('Settings') }}
                         </flux:menu.item>
                     </flux:menu.radio.group>
+
+                    <flux:menu.separator />
+
+                    <div class="px-3 py-2">
+                        <x-app-language-switcher id="app-mobile-menu-locale" />
+                    </div>
 
                     <flux:menu.separator />
 

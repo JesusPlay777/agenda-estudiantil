@@ -37,6 +37,7 @@ test('teacher users can access their private dashboard', function () {
     $response = $this->actingAs($teacher)->get(route('teacher.dashboard'));
 
     $response->assertOk();
+    $response->assertSee('app-sidebar-locale', escape: false);
 });
 
 test('student users can access their private dashboard', function () {
@@ -45,6 +46,7 @@ test('student users can access their private dashboard', function () {
     $response = $this->actingAs($student)->get(route('student.dashboard'));
 
     $response->assertOk();
+    $response->assertSee('app-sidebar-locale', escape: false);
 });
 
 test('teacher users cannot access student dashboard', function () {

@@ -127,8 +127,7 @@
     "Your student profile is not configured yet. Contact an administrator to assign your section.": "Tu perfil de estudiante aún no está configurado. Contacta a un administrador para asignarte una sección.",
     "Title": "Título",
     "Description": "Descripción",
-    "Active": "Activo"
-    ,
+    "Active": "Activo",
     "My assignments": "Mis tareas",
     "Manage tasks for your assigned sections and subjects.": "Gestiona tareas para tus secciones y materias asignadas.",
     "Create assignment": "Crear tarea",
@@ -145,5 +144,20 @@
     "Assignment updated successfully.": "Tarea actualizada correctamente.",
     "Assignment deleted successfully.": "Tarea eliminada correctamente.",
     "Select an option": "Selecciona una opción",
-    "Published at": "Publicado en"
+    "Published at": "Publicado en",
+    "Review assignments for your section and track your submission status.": "Revisa las tareas de tu sección y el estado de tus entregas.",
+    "View details": "Ver detalle",
+    "Back to assignments": "Volver a tareas",
+    "Last submission": "Última entrega",
+    "Assignment details": "Detalle de la tarea",
+    "Your submission": "Tu entrega",
+    "Write your response and save it as your official submission.": "Escribe tu respuesta y guárdala como tu entrega oficial.",
+    "Submission text": "Texto de entrega",
+    "Update submission": "Actualizar entrega",
+    "Submit assignment": "Entregar tarea",
+    "Submission saved successfully.": "Entrega guardada correctamente.",
+    "Pending": "Pendiente",
+    "Overdue": "Vencida",
+    "Submitted on time": "Entregada a tiempo",
+    "Submitted late": "Entregada tarde"
 }

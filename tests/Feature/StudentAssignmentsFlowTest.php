@@ -1,0 +1,199 @@
+<?php
+
+use App\Models\AcademicSection;
+use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
+use App\Models\StudentProfile;
+use App\Models\Subject;
+use App\Models\TeachingAssignment;
+use App\Models\User;
+
+function createTeachingAssignmentForSection(User $teacher, AcademicSection $section, string $subjectName): TeachingAssignment
+{
+    $subject = Subject::create([
+        'name' => $subjectName,
+        'code' => strtoupper(substr($subjectName, 0, 3)),
+        'is_active' => true,
+    ]);
+
+    return TeachingAssignment::create([
+        'academic_section_id' => $section->id,
+        'subject_id' => $subject->id,
+        'teacher_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+}
+
+test('student can list assignments only from their section', function () {
+    $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
+    $teacherA = User::factory()->create(['role' => User::ROLE_TEACHER]);
+    $teacherB = User::factory()->create(['role' => User::ROLE_TEACHER]);
+
+    $sectionA = AcademicSection::create([
+        'name' => '5to Ano A',
+        'school_year' => '2026-2027',
+        'is_active' => true,
+    ]);
+    $sectionB = AcademicSection::create([
+        'name' => '5to Ano B',
+        'school_year' => '2026-2027',
+        'is_active' => true,
+    ]);
+
+    StudentProfile::create([
+        'user_id' => $student->id,
+        'academic_section_id' => $sectionA->id,
+        'phone' => null,
+    ]);
+
+    $assignmentA = Assignment::create([
+        'teaching_assignment_id' => createTeachingAssignmentForSection($teacherA, $sectionA, 'Matematicas')->id,
+        'title' => 'Tarea visible para estudiante',
+        'description' => 'Contenido visible',
+        'due_date' => now()->addDays(3)->toDateString(),
+        'published_at' => now(),
+        'is_active' => true,
+    ]);
+
+    Assignment::create([
+        'teaching_assignment_id' => createTeachingAssignmentForSection($teacherB, $sectionB, 'Historia')->id,
+        'title' => 'Tarea oculta para estudiante',
+        'description' => 'Contenido oculto',
+        'due_date' => now()->addDays(4)->toDateString(),
+        'published_at' => now(),
+        'is_active' => true,
+    ]);
+
+    $response = $this->actingAs($student)->get(route('student.assignments.index'));
+
+    $response->assertOk();
+    $response->assertSee($assignmentA->title);
+    $response->assertDontSee('Tarea oculta para estudiante');
+});
+
+test('student can view assignment details from their section', function () {
+    $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER]);
+
+    $section = AcademicSection::create([
+        'name' => '4to Ano A',
+        'school_year' => '2026-2027',
+        'is_active' => true,
+    ]);
+
+    StudentProfile::create([
+        'user_id' => $student->id,
+        'academic_section_id' => $section->id,
+        'phone' => null,
+    ]);
+
+    $assignment = Assignment::create([
+        'teaching_assignment_id' => createTeachingAssignmentForSection($teacher, $section, 'Castellano')->id,
+        'title' => 'Tarea de lectura',
+        'description' => 'Leer capitulo 1 y responder preguntas.',
+        'due_date' => now()->addDays(2)->toDateString(),
+        'published_at' => now(),
+        'is_active' => true,
+    ]);
+
+    $response = $this->actingAs($student)->get(route('student.assignments.show', $assignment));
+
+    $response->assertOk();
+    $response->assertSee('Tarea de lectura');
+});
+
+test('student cannot view assignment outside their section', function () {
+    $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER]);
+
+    $sectionA = AcademicSection::create([
+        'name' => '3er Ano A',
+        'school_year' => '2026-2027',
+        'is_active' => true,
+    ]);
+    $sectionB = AcademicSection::create([
+        'name' => '3er Ano B',
+        'school_year' => '2026-2027',
+        'is_active' => true,
+    ]);
+
+    StudentProfile::create([
+        'user_id' => $student->id,
+        'academic_section_id' => $sectionA->id,
+        'phone' => null,
+    ]);
+
+    $foreignAssignment = Assignment::create([
+        'teaching_assignment_id' => createTeachingAssignmentForSection($teacher, $sectionB, 'Quimica')->id,
+        'title' => 'Tarea fuera de seccion',
+        'description' => 'No debe verse',
+        'due_date' => now()->addDays(1)->toDateString(),
+        'published_at' => now(),
+        'is_active' => true,
+    ]);
+
+    $response = $this->actingAs($student)->get(route('student.assignments.show', $foreignAssignment));
+
+    $response->assertForbidden();
+});
+
+test('student can submit and update assignment submission', function () {
+    $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER]);
+
+    $section = AcademicSection::create([
+        'name' => '2do Ano A',
+        'school_year' => '2026-2027',
+        'is_active' => true,
+    ]);
+
+    StudentProfile::create([
+        'user_id' => $student->id,
+        'academic_section_id' => $section->id,
+        'phone' => null,
+    ]);
+
+    $assignment = Assignment::create([
+        'teaching_assignment_id' => createTeachingAssignmentForSection($teacher, $section, 'Biologia')->id,
+        'title' => 'Tarea de biologia',
+        'description' => 'Responder cuestionario.',
+        'due_date' => now()->addDays(5)->toDateString(),
+        'published_at' => now(),
+        'is_active' => true,
+    ]);
+
+    $storeResponse = $this->actingAs($student)->post(route('student.assignments.submit', $assignment), [
+        'submission_text' => 'Mi primera entrega.',
+    ]);
+
+    $storeResponse->assertRedirect(route('student.assignments.show', $assignment, absolute: false));
+    $this->assertDatabaseHas('assignment_submissions', [
+        'assignment_id' => $assignment->id,
+        'student_id' => $student->id,
+        'submission_text' => 'Mi primera entrega.',
+    ]);
+
+    $updateResponse = $this->actingAs($student)->post(route('student.assignments.submit', $assignment), [
+        'submission_text' => 'Mi entrega actualizada.',
+    ]);
+
+    $updateResponse->assertRedirect(route('student.assignments.show', $assignment, absolute: false));
+    $this->assertDatabaseHas('assignment_submissions', [
+        'assignment_id' => $assignment->id,
+        'student_id' => $student->id,
+        'submission_text' => 'Mi entrega actualizada.',
+    ]);
+
+    expect(AssignmentSubmission::query()
+        ->where('assignment_id', $assignment->id)
+        ->where('student_id', $student->id)
+        ->count())->toBe(1);
+});
+
+test('teacher cannot access student assignment routes', function () {
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER]);
+
+    $response = $this->actingAs($teacher)->get(route('student.assignments.index'));
+
+    $response->assertForbidden();
+});

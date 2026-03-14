@@ -1,10 +1,22 @@
 <x-layouts::app :title="__('Student Dashboard')">
     <div class="space-y-6">
         <div class="rounded-xl border border-neutral-200 p-6 dark:border-neutral-700">
-            <h1 class="text-2xl font-semibold">{{ __('Student Dashboard') }}</h1>
-            <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
-                {{ __('Review your section, subjects, weekly schedule, and assigned tasks.') }}
-            </p>
+            <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-2xl font-semibold">{{ __('Student Dashboard') }}</h1>
+                    <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                        {{ __('Review your section, subjects, weekly schedule, and assigned tasks.') }}
+                    </p>
+                </div>
+
+                <a
+                    href="{{ route('student.assignments.index') }}"
+                    class="inline-flex items-center rounded-lg border border-neutral-300 px-3 py-2 text-sm transition hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
+                    wire:navigate
+                >
+                    {{ __('View assignments') }}
+                </a>
+            </div>
         </div>
 
         @if (! $studentProfile)
@@ -107,8 +119,19 @@
                 @else
                     <ul class="mt-3 space-y-3 text-sm">
                         @foreach ($recentAssignments as $assignment)
+                            @php
+                                $submission = $recentSubmissionsByAssignment->get($assignment->id);
+                                $status = $recentStatusesByAssignment->get($assignment->id);
+                            @endphp
                             <li class="rounded-lg bg-neutral-100 px-3 py-3 dark:bg-neutral-800">
-                                <p class="font-medium">{{ $assignment->title }}</p>
+                                <div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                                    <p class="font-medium">{{ $assignment->title }}</p>
+                                    @if ($status)
+                                        <span class="inline-flex w-fit items-center rounded-full border px-2 py-1 text-xs font-medium {{ $status['badge_class'] }}">
+                                            {{ $status['label'] }}
+                                        </span>
+                                    @endif
+                                </div>
                                 <p class="text-neutral-600 dark:text-neutral-300">
                                     {{ __('Subject') }}: {{ $assignment->teachingAssignment?->subject?->name ?? '-' }}
                                     |
@@ -118,6 +141,18 @@
                                     {{ __('Due date') }}:
                                     {{ $assignment->due_date?->format('Y-m-d') ?? __('Not defined') }}
                                 </p>
+                                @if ($submission?->submitted_at)
+                                    <p class="text-neutral-500 dark:text-neutral-400">
+                                        {{ __('Last submission') }}: {{ $submission->submitted_at->format('Y-m-d H:i') }}
+                                    </p>
+                                @endif
+                                <a
+                                    href="{{ route('student.assignments.show', $assignment) }}"
+                                    class="mt-2 inline-flex items-center rounded-lg border border-neutral-300 px-3 py-1.5 text-xs transition hover:bg-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
+                                    wire:navigate
+                                >
+                                    {{ __('View details') }}
+                                </a>
                             </li>
                         @endforeach
                     </ul>
