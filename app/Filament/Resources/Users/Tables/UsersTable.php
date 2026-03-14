@@ -45,6 +45,24 @@ class UsersTable
                         : '—')
                     ->toggleable(),
 
+                TextColumn::make('identity_card_display')
+                    ->label(__('ui.fields.identity_card'))
+                    ->getStateUsing(fn (User $record): string => match ($record->role) {
+                        User::ROLE_STUDENT => $record->studentProfile?->identity_card ?? '—',
+                        User::ROLE_TEACHER => $record->teacherProfile?->identity_card ?? '—',
+                        default => '—',
+                    })
+                    ->toggleable(),
+
+                TextColumn::make('phone_display')
+                    ->label(__('ui.fields.phone'))
+                    ->getStateUsing(fn (User $record): string => match ($record->role) {
+                        User::ROLE_STUDENT => $record->studentProfile?->phone ?? '—',
+                        User::ROLE_TEACHER => $record->teacherProfile?->phone ?? '—',
+                        default => '—',
+                    })
+                    ->toggleable(),
+
                 IconColumn::make('email_verified_at')
                     ->label(__('ui.fields.email_verified'))
                     ->boolean()

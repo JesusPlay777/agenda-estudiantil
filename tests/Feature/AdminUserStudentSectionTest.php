@@ -6,6 +6,7 @@ use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Models\AcademicSection;
 use App\Models\StudentProfile;
 use App\Models\Subject;
+use App\Models\TeacherProfile;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Livewire\Livewire;
@@ -226,6 +227,34 @@ test('admin can filter users by role in the user list', function () {
         ->filterTable('role', User::ROLE_TEACHER)
         ->assertCanSeeTableRecords([$teacher])
         ->assertCanNotSeeTableRecords([$student, $admin]);
+});
+
+test('admin user list shows identity card and phone from student and teacher profiles', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $student = User::factory()->create(['role' => User::ROLE_STUDENT, 'name' => 'Student Contact']);
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER, 'name' => 'Teacher Contact']);
+    $section = createAcademicSection('1er Ano A');
+
+    StudentProfile::create([
+        'user_id' => $student->id,
+        'academic_section_id' => $section->id,
+        'identity_card' => 'V70000001',
+        'phone' => '04140000001',
+    ]);
+
+    TeacherProfile::create([
+        'user_id' => $teacher->id,
+        'identity_card' => 'V70000002',
+        'phone' => '04140000002',
+    ]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListUsers::class)
+        ->assertSee('V70000001')
+        ->assertSee('04140000001')
+        ->assertSee('V70000002')
+        ->assertSee('04140000002');
 });
 
 test('teacher specialization is required when creating a teacher from the user resource', function () {
