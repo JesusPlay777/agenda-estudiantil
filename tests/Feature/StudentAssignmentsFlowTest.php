@@ -7,6 +7,8 @@ use App\Models\StudentProfile;
 use App\Models\Subject;
 use App\Models\TeachingAssignment;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 function createTeachingAssignmentForSection(User $teacher, AcademicSection $section, string $subjectName): TeachingAssignment
 {
@@ -233,6 +235,75 @@ test('student can see teacher score and feedback on assignment detail', function
     $response->assertSee('Teacher review');
     $response->assertSee('19.00');
     $response->assertSee('Excelente sintesis del contenido.');
+});
+
+test('student can upload attachments and a new submission clears previous review', function () {
+    Storage::fake('local');
+
+    $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER]);
+
+    $section = AcademicSection::create([
+        'name' => '1er Ano B',
+        'school_year' => '2026-2027',
+        'is_active' => true,
+    ]);
+
+    StudentProfile::create([
+        'user_id' => $student->id,
+        'academic_section_id' => $section->id,
+        'identity_card' => 'V84500001',
+        'phone' => '04140000451',
+    ]);
+
+    $assignment = Assignment::create([
+        'teaching_assignment_id' => createTeachingAssignmentForSection($teacher, $section, 'Fisica')->id,
+        'title' => 'Entrega con adjunto',
+        'description' => 'Sube tu guia resuelta.',
+        'due_date' => now()->addDays(2)->toDateString(),
+        'published_at' => now(),
+        'is_active' => true,
+    ]);
+
+    AssignmentSubmission::create([
+        'assignment_id' => $assignment->id,
+        'student_id' => $student->id,
+        'submission_text' => 'Entrega anterior.',
+        'submitted_at' => now()->subDay(),
+        'score' => 15,
+        'teacher_feedback' => 'Primera revision.',
+        'reviewed_at' => now()->subHours(12),
+        'reviewed_by' => $teacher->id,
+    ]);
+
+    $response = $this->actingAs($student)->post(route('student.assignments.submit', $assignment), [
+        'submission_text' => 'Nueva entrega con archivo.',
+        'attachments' => [
+            UploadedFile::fake()->create('guia-fisica.pdf', 100, 'application/pdf'),
+        ],
+    ]);
+
+    $response->assertRedirect(route('student.assignments.show', $assignment, absolute: false));
+
+    $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
+        ->where('student_id', $student->id)
+        ->with('attachments')
+        ->firstOrFail();
+
+    expect($submission->score)->toBeNull();
+    expect($submission->teacher_feedback)->toBeNull();
+    expect($submission->reviewed_at)->toBeNull();
+    expect($submission->reviewed_by)->toBeNull();
+    expect($submission->attachments)->toHaveCount(1);
+
+    $attachment = $submission->attachments->first();
+
+    expect($attachment)->not->toBeNull();
+    Storage::disk('local')->assertExists($attachment->path);
+
+    $downloadResponse = $this->actingAs($student)->get(route('submission-attachments.download', $attachment));
+
+    $downloadResponse->assertOk();
 });
 
 test('teacher cannot access student assignment routes', function () {

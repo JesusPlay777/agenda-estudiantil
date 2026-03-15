@@ -4,6 +4,7 @@ use App\Http\Controllers\Dashboard\StudentDashboardController;
 use App\Http\Controllers\Dashboard\StudentAssignmentController;
 use App\Http\Controllers\Dashboard\TeacherAssignmentController;
 use App\Http\Controllers\Dashboard\TeacherAssignmentSubmissionController;
+use App\Http\Controllers\Dashboard\AssignmentSubmissionAttachmentController;
 use App\Http\Controllers\Dashboard\TeacherDashboardController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -29,6 +30,9 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('submission-attachments/{attachment}/download', [AssignmentSubmissionAttachmentController::class, 'download'])
+        ->name('submission-attachments.download');
+
     Route::get('dashboard', function (Request $request) {
         return match ($request->user()->role) {
             User::ROLE_ADMIN => redirect('/admin'),
@@ -52,6 +56,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('assignments/{assignment}/submissions', [TeacherAssignmentSubmissionController::class, 'index'])->name('assignments.submissions.index');
             Route::get('assignments/{assignment}/submissions/{submission}', [TeacherAssignmentSubmissionController::class, 'show'])->name('assignments.submissions.show');
             Route::put('assignments/{assignment}/submissions/{submission}/review', [TeacherAssignmentSubmissionController::class, 'review'])->name('assignments.submissions.review');
+            Route::delete('assignments/{assignment}/submissions/{submission}/review', [TeacherAssignmentSubmissionController::class, 'clearReview'])->name('assignments.submissions.clear-review');
         });
 
     Route::middleware(['role:student'])

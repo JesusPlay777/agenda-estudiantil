@@ -23,6 +23,9 @@ class TeacherAssignmentController extends Controller
             ->withCount('submissions')
             ->withCount([
                 'submissions as reviewed_submissions_count' => fn ($query) => $query->whereNotNull('reviewed_at'),
+                'submissions as pending_review_submissions_count' => fn ($query) => $query
+                    ->whereNotNull('submitted_at')
+                    ->whereNull('reviewed_at'),
             ])
             ->with([
                 'teachingAssignment.subject:id,name',

@@ -42,9 +42,34 @@
                 </span>
             </div>
 
+            <div class="mt-3">
+                <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium {{ $reviewStatus['badge_class'] }}">
+                    {{ $reviewStatus['label'] }}
+                </span>
+            </div>
+
             <div class="mt-4 rounded-lg bg-neutral-100 p-4 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
                 <p class="whitespace-pre-line">{{ $submission->submission_text }}</p>
             </div>
+
+            @if ($submission->attachments->isNotEmpty())
+                <div class="mt-4 rounded-lg bg-neutral-100 p-4 text-sm dark:bg-neutral-800">
+                    <p class="font-medium">{{ __('Attachments') }}</p>
+                    <ul class="mt-2 space-y-2">
+                        @foreach ($submission->attachments as $attachment)
+                            <li class="flex items-center justify-between gap-3">
+                                <span class="truncate text-neutral-700 dark:text-neutral-200">{{ $attachment->original_name }}</span>
+                                <a
+                                    href="{{ route('submission-attachments.download', $attachment) }}"
+                                    class="inline-flex items-center rounded-lg border border-neutral-300 px-3 py-1.5 text-xs transition hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-700"
+                                >
+                                    {{ __('Download') }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
 
         <form method="POST" action="{{ route('teacher.assignments.submissions.review', [$assignment, $submission]) }}" class="rounded-xl border border-neutral-200 p-6 dark:border-neutral-700">
@@ -105,6 +130,20 @@
                 >
                     {{ __('Save review') }}
                 </button>
+
+                @if ($submission->reviewed_at || filled($submission->score) || filled($submission->teacher_feedback))
+                    <form method="POST" action="{{ route('teacher.assignments.submissions.clear-review', [$assignment, $submission]) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button
+                            type="submit"
+                            class="inline-flex items-center rounded-lg border border-red-300 px-4 py-2 text-sm text-red-700 transition hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-900/20"
+                            onclick="return confirm('{{ __('Are you sure you want to clear this review?') }}')"
+                        >
+                            {{ __('Clear review') }}
+                        </button>
+                    </form>
+                @endif
             </div>
         </form>
     </div>

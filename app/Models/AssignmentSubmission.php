@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AssignmentSubmission extends Model
 {
@@ -40,5 +41,11 @@ class AssignmentSubmission extends Model
     public function reviewedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(AssignmentSubmissionAttachment::class)
+            ->orderBy('original_name');
     }
 }

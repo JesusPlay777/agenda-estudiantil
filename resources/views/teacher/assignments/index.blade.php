@@ -46,10 +46,27 @@
                                     {{ __('Submissions') }}: {{ $assignment->submissions_count }}
                                     |
                                     {{ __('Reviewed') }}: {{ $assignment->reviewed_submissions_count }}
+                                    |
+                                    {{ __('Pending review') }}: {{ $assignment->pending_review_submissions_count }}
                                 </p>
                             </div>
 
-                            <div class="flex items-center gap-2">
+                            <div class="flex flex-col items-start gap-2 md:items-end">
+                                @if ($assignment->submissions_count === 0)
+                                    <span class="inline-flex items-center rounded-full border border-neutral-300 bg-neutral-50 px-2 py-1 text-xs font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/20 dark:text-neutral-200">
+                                        {{ __('No submissions') }}
+                                    </span>
+                                @elseif ($assignment->pending_review_submissions_count > 0)
+                                    <span class="inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-2 py-1 text-xs font-medium text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100">
+                                        {{ __('Pending review') }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-900 dark:border-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-100">
+                                        {{ __('Reviewed') }}
+                                    </span>
+                                @endif
+
+                                <div class="flex items-center gap-2">
                                 <a
                                     href="{{ route('teacher.assignments.submissions.index', $assignment) }}"
                                     class="inline-flex items-center rounded-lg border border-neutral-300 px-3 py-2 text-sm transition hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
@@ -77,6 +94,7 @@
                                         {{ __('Delete') }}
                                     </button>
                                 </form>
+                                </div>
                             </div>
                         </div>
                     </article>

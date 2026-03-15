@@ -20,6 +20,18 @@
                 |
                 {{ __('Section') }}: {{ $assignment->teachingAssignment?->academicSection?->name ?? '-' }}
             </p>
+
+            <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                <span class="rounded-full bg-neutral-100 px-3 py-1 dark:bg-neutral-800">
+                    {{ __('Submissions') }}: {{ $reviewStats['submitted'] }}
+                </span>
+                <span class="rounded-full bg-emerald-50 px-3 py-1 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-100">
+                    {{ __('Reviewed') }}: {{ $reviewStats['reviewed'] }}
+                </span>
+                <span class="rounded-full bg-amber-50 px-3 py-1 text-amber-800 dark:bg-amber-900/20 dark:text-amber-100">
+                    {{ __('Pending review') }}: {{ $reviewStats['pending_review'] }}
+                </span>
+            </div>
         </div>
 
         @if (session('status'))
@@ -39,6 +51,7 @@
                         $student = $entry['student'];
                         $submission = $entry['submission'];
                         $status = $entry['status'];
+                        $reviewStatus = $entry['review_status'];
                     @endphp
                     <article class="rounded-xl border border-neutral-200 p-4 dark:border-neutral-700">
                         <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -62,11 +75,19 @@
                                         {{ __('Score') }}: {{ number_format((float) $submission->score, 2) }}
                                     </p>
                                 @endif
+                                @if ($submission?->attachments?->isNotEmpty())
+                                    <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                        {{ __('Attachments') }}: {{ $submission->attachments->count() }}
+                                    </p>
+                                @endif
                             </div>
 
                             <div class="flex flex-col items-start gap-2 md:items-end">
                                 <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium {{ $status['badge_class'] }}">
                                     {{ $status['label'] }}
+                                </span>
+                                <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium {{ $reviewStatus['badge_class'] }}">
+                                    {{ $reviewStatus['label'] }}
                                 </span>
 
                                 @if ($submission?->submitted_at)

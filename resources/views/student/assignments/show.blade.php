@@ -40,7 +40,7 @@
             <p class="mt-3 whitespace-pre-line text-sm text-neutral-700 dark:text-neutral-200">{{ $assignment->description }}</p>
         </div>
 
-        <form method="POST" action="{{ route('student.assignments.submit', $assignment) }}" class="rounded-xl border border-neutral-200 p-6 dark:border-neutral-700">
+        <form method="POST" action="{{ route('student.assignments.submit', $assignment) }}" enctype="multipart/form-data" class="rounded-xl border border-neutral-200 p-6 dark:border-neutral-700">
             @csrf
 
             <h2 class="text-lg font-semibold">{{ __('Your submission') }}</h2>
@@ -68,6 +68,59 @@
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
+
+            <div class="mt-4">
+                <label for="attachments" class="mb-1 block text-sm font-medium">{{ __('Attachments') }}</label>
+                <input
+                    id="attachments"
+                    name="attachments[]"
+                    type="file"
+                    multiple
+                    class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+                />
+                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                    {{ __('You can upload up to 5 files of 5MB each.') }}
+                </p>
+                @error('attachments')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+                @error('attachments.*')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            @if ($submission?->attachments?->isNotEmpty())
+                <div class="mt-4 rounded-lg bg-neutral-100 p-4 text-sm dark:bg-neutral-800">
+                    <p class="font-medium">{{ __('Attachments') }}</p>
+                    <ul class="mt-2 space-y-2">
+                        @foreach ($submission->attachments as $attachment)
+                            <li class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                                <div class="flex items-center gap-2">
+                                    <input
+                                        id="remove_attachment_{{ $attachment->id }}"
+                                        name="remove_attachment_ids[]"
+                                        type="checkbox"
+                                        value="{{ $attachment->id }}"
+                                        class="h-4 w-4 rounded border-neutral-300 dark:border-neutral-700"
+                                    />
+                                    <label for="remove_attachment_{{ $attachment->id }}" class="text-neutral-700 dark:text-neutral-200">
+                                        {{ $attachment->original_name }}
+                                    </label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('Remove attachment') }}</span>
+                                    <a
+                                        href="{{ route('submission-attachments.download', $attachment) }}"
+                                        class="inline-flex items-center rounded-lg border border-neutral-300 px-3 py-1.5 text-xs transition hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-700"
+                                    >
+                                        {{ __('Download') }}
+                                    </a>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <div class="mt-6 flex items-center gap-3">
                 <button
@@ -105,6 +158,11 @@
                         {{ $submission?->teacher_feedback ?: '—' }}
                     </p>
                 </div>
+                @if ($submission?->reviewedBy?->name)
+                    <p class="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
+                        {{ __('Reviewed by') }}: {{ $submission->reviewedBy->name }}
+                    </p>
+                @endif
             </div>
         @elseif ($submission?->submitted_at)
             <div class="rounded-xl border border-neutral-200 p-6 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-300">

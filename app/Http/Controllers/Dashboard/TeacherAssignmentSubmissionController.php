@@ -29,6 +29,11 @@ class TeacherAssignmentSubmissionController extends Controller
         return view('teacher.assignments.submissions.index', [
             'assignment' => $assignment,
             'students' => $students,
+            'reviewStats' => [
+                'submitted' => $students->filter(fn (array $entry): bool => filled($entry['submission']?->submitted_at))->count(),
+                'reviewed' => $students->filter(fn (array $entry): bool => $entry['review_status']['key'] === 'reviewed')->count(),
+                'pending_review' => $students->filter(fn (array $entry): bool => $entry['review_status']['key'] === 'pending_review')->count(),
+            ],
         ]);
     }
 
@@ -44,6 +49,7 @@ class TeacherAssignmentSubmissionController extends Controller
             'assignment' => $assignment,
             'submission' => $submission,
             'submissionStatus' => $this->resolveSubmissionStatus($assignment, $submission),
+            'reviewStatus' => $this->resolveReviewStatus($submission),
         ]);
     }
 
@@ -75,8 +81,34 @@ class TeacherAssignmentSubmissionController extends Controller
             ->with('status', __('Review saved successfully.'));
     }
 
+    public function clearReview(Assignment $assignment, AssignmentSubmission $submission): RedirectResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $assignment = $this->ensureAssignmentBelongsToTeacher($user, $assignment);
+        $submission = $this->ensureSubmissionBelongsToAssignment($assignment, $submission);
+
+        $submission->update([
+            'score' => null,
+            'teacher_feedback' => null,
+            'reviewed_at' => null,
+            'reviewed_by' => null,
+        ]);
+
+        return redirect()
+            ->route('teacher.assignments.submissions.show', [$assignment, $submission])
+            ->with('status', __('Review cleared successfully.'));
+    }
+
     /**
-     * @return Collection<int, array{studentProfile: StudentProfile, student: ?User, submission: ?AssignmentSubmission, status: array{key: string, label: string, badge_class: string}}>
+     * @return Collection<int, array{
+     *     studentProfile: StudentProfile,
+     *     student: ?User,
+     *     submission: ?AssignmentSubmission,
+     *     status: array{key: string, label: string, badge_class: string},
+     *     review_status: array{key: string, label: string, badge_class: string}
+     * }>
      */
     private function buildStudentSubmissionCollection(Assignment $assignment): Collection
     {
@@ -93,6 +125,7 @@ class TeacherAssignmentSubmissionController extends Controller
             ->with([
                 'student:id,name,email',
                 'reviewedBy:id,name',
+                'attachments:id,assignment_submission_id,original_name,path,mime_type,size',
             ])
             ->get()
             ->keyBy('student_id');
@@ -106,6 +139,7 @@ class TeacherAssignmentSubmissionController extends Controller
                     'student' => $studentProfile->user,
                     'submission' => $submission,
                     'status' => $this->resolveSubmissionStatus($assignment, $submission),
+                    'review_status' => $this->resolveReviewStatus($submission),
                 ];
             });
     }
@@ -137,6 +171,31 @@ class TeacherAssignmentSubmissionController extends Controller
         return $submission->load([
             'student:id,name,email',
             'reviewedBy:id,name',
+            'attachments:id,assignment_submission_id,original_name,path,mime_type,size',
         ]);
+    }
+
+    /**
+     * @return array{key: string, label: string, badge_class: string}
+     */
+    private function resolveReviewStatus(?AssignmentSubmission $submission): array
+    {
+        return match (true) {
+            ! $submission?->submitted_at => [
+                'key' => 'no_submission',
+                'label' => __('No submission'),
+                'badge_class' => 'border-neutral-300 bg-neutral-50 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/20 dark:text-neutral-200',
+            ],
+            (bool) $submission->reviewed_at => [
+                'key' => 'reviewed',
+                'label' => __('Reviewed'),
+                'badge_class' => 'border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-100',
+            ],
+            default => [
+                'key' => 'pending_review',
+                'label' => __('Pending review'),
+                'badge_class' => 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100',
+            ],
+        };
     }
 }
