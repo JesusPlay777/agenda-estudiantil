@@ -3,6 +3,7 @@
 use App\Http\Controllers\Dashboard\StudentDashboardController;
 use App\Http\Controllers\Dashboard\StudentAssignmentController;
 use App\Http\Controllers\Dashboard\TeacherAssignmentController;
+use App\Http\Controllers\Dashboard\TeacherAssignmentSubmissionController;
 use App\Http\Controllers\Dashboard\TeacherDashboardController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -48,6 +49,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('assignments/{assignment}/edit', [TeacherAssignmentController::class, 'edit'])->name('assignments.edit');
             Route::put('assignments/{assignment}', [TeacherAssignmentController::class, 'update'])->name('assignments.update');
             Route::delete('assignments/{assignment}', [TeacherAssignmentController::class, 'destroy'])->name('assignments.destroy');
+            Route::get('assignments/{assignment}/submissions', [TeacherAssignmentSubmissionController::class, 'index'])->name('assignments.submissions.index');
+            Route::get('assignments/{assignment}/submissions/{submission}', [TeacherAssignmentSubmissionController::class, 'show'])->name('assignments.submissions.show');
+            Route::put('assignments/{assignment}/submissions/{submission}/review', [TeacherAssignmentSubmissionController::class, 'review'])->name('assignments.submissions.review');
         });
 
     Route::middleware(['role:student'])

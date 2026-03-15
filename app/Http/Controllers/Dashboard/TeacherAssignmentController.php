@@ -20,6 +20,10 @@ class TeacherAssignmentController extends Controller
 
         $assignments = Assignment::query()
             ->whereHas('teachingAssignment', fn ($query) => $query->where('teacher_id', $user->id))
+            ->withCount('submissions')
+            ->withCount([
+                'submissions as reviewed_submissions_count' => fn ($query) => $query->whereNotNull('reviewed_at'),
+            ])
             ->with([
                 'teachingAssignment.subject:id,name',
                 'teachingAssignment.academicSection:id,name,school_year',

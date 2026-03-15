@@ -78,5 +78,38 @@
                 </button>
             </div>
         </form>
+
+        @if ($submission?->reviewed_at || filled($submission?->score) || filled($submission?->teacher_feedback))
+            <div class="rounded-xl border border-neutral-200 p-6 dark:border-neutral-700">
+                <h2 class="text-lg font-semibold">{{ __('Teacher review') }}</h2>
+
+                <div class="mt-4 grid gap-4 md:grid-cols-2">
+                    <div class="rounded-lg bg-neutral-100 px-4 py-3 text-sm dark:bg-neutral-800">
+                        <p class="text-neutral-500 dark:text-neutral-400">{{ __('Score') }}</p>
+                        <p class="mt-1 text-lg font-semibold text-neutral-900 dark:text-white">
+                            {{ filled($submission?->score) ? number_format((float) $submission->score, 2) : '—' }}
+                        </p>
+                    </div>
+
+                    <div class="rounded-lg bg-neutral-100 px-4 py-3 text-sm dark:bg-neutral-800">
+                        <p class="text-neutral-500 dark:text-neutral-400">{{ __('Reviewed at') }}</p>
+                        <p class="mt-1 text-neutral-900 dark:text-white">
+                            {{ $submission?->reviewed_at?->format('Y-m-d H:i') ?? '—' }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-4 rounded-lg bg-neutral-100 px-4 py-3 text-sm dark:bg-neutral-800">
+                    <p class="font-medium">{{ __('Teacher feedback') }}</p>
+                    <p class="mt-2 whitespace-pre-line text-neutral-700 dark:text-neutral-200">
+                        {{ $submission?->teacher_feedback ?: '—' }}
+                    </p>
+                </div>
+            </div>
+        @elseif ($submission?->submitted_at)
+            <div class="rounded-xl border border-neutral-200 p-6 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-300">
+                {{ __('Awaiting teacher review.') }}
+            </div>
+        @endif
     </div>
 </x-layouts::app>

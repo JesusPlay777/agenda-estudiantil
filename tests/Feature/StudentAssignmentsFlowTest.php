@@ -190,6 +190,51 @@ test('student can submit and update assignment submission', function () {
         ->count())->toBe(1);
 });
 
+test('student can see teacher score and feedback on assignment detail', function () {
+    $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER, 'name' => 'Teacher Reviewer']);
+
+    $section = AcademicSection::create([
+        'name' => '1er Ano A',
+        'school_year' => '2026-2027',
+        'is_active' => true,
+    ]);
+
+    StudentProfile::create([
+        'user_id' => $student->id,
+        'academic_section_id' => $section->id,
+        'identity_card' => 'V84000001',
+        'phone' => '04140000401',
+    ]);
+
+    $assignment = Assignment::create([
+        'teaching_assignment_id' => createTeachingAssignmentForSection($teacher, $section, 'Geografia')->id,
+        'title' => 'Mapa conceptual',
+        'description' => 'Entrega el mapa conceptual solicitado.',
+        'due_date' => now()->addDays(3)->toDateString(),
+        'published_at' => now(),
+        'is_active' => true,
+    ]);
+
+    AssignmentSubmission::create([
+        'assignment_id' => $assignment->id,
+        'student_id' => $student->id,
+        'submission_text' => 'Mi entrega revisada.',
+        'submitted_at' => now()->subDay(),
+        'score' => 19,
+        'teacher_feedback' => 'Excelente sintesis del contenido.',
+        'reviewed_at' => now(),
+        'reviewed_by' => $teacher->id,
+    ]);
+
+    $response = $this->actingAs($student)->get(route('student.assignments.show', $assignment));
+
+    $response->assertOk();
+    $response->assertSee('Teacher review');
+    $response->assertSee('19.00');
+    $response->assertSee('Excelente sintesis del contenido.');
+});
+
 test('teacher cannot access student assignment routes', function () {
     $teacher = User::factory()->create(['role' => User::ROLE_TEACHER]);
 

@@ -52,6 +52,7 @@ class StudentAssignmentController extends Controller
         $submissionsByAssignment = AssignmentSubmission::query()
             ->where('student_id', $user->id)
             ->whereIn('assignment_id', $assignments->getCollection()->pluck('id'))
+            ->with('reviewedBy:id,name')
             ->get()
             ->keyBy('assignment_id');
 
@@ -88,6 +89,7 @@ class StudentAssignmentController extends Controller
         $submission = AssignmentSubmission::query()
             ->where('assignment_id', $assignment->id)
             ->where('student_id', $user->id)
+            ->with('reviewedBy:id,name')
             ->first();
 
         return view('student.assignments.show', [

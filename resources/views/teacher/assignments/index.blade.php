@@ -42,9 +42,22 @@
                                 <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
                                     {{ __('Due date') }}: {{ $assignment->due_date?->format('Y-m-d') ?? __('Not defined') }}
                                 </p>
+                                <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                    {{ __('Submissions') }}: {{ $assignment->submissions_count }}
+                                    |
+                                    {{ __('Reviewed') }}: {{ $assignment->reviewed_submissions_count }}
+                                </p>
                             </div>
 
                             <div class="flex items-center gap-2">
+                                <a
+                                    href="{{ route('teacher.assignments.submissions.index', $assignment) }}"
+                                    class="inline-flex items-center rounded-lg border border-neutral-300 px-3 py-2 text-sm transition hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
+                                    wire:navigate
+                                >
+                                    {{ __('Review submissions') }}
+                                </a>
+
                                 <a
                                     href="{{ route('teacher.assignments.edit', $assignment) }}"
                                     class="inline-flex items-center rounded-lg border border-neutral-300 px-3 py-2 text-sm transition hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"

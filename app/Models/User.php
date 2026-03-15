@@ -80,6 +80,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(AssignmentSubmission::class, 'student_id');
     }
 
+    public function reviewedAssignmentSubmissions(): HasMany
+    {
+        return $this->hasMany(AssignmentSubmission::class, 'reviewed_by');
+    }
+
     public function specializedSubjects(): BelongsToMany
     {
         return $this->belongsToMany(

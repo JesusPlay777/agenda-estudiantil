@@ -145,6 +145,11 @@
                                         {{ __('Last submission') }}: {{ $submission->submitted_at->format('Y-m-d H:i') }}
                                     </p>
                                 @endif
+                                @if ($submission?->reviewed_at)
+                                    <p class="text-neutral-500 dark:text-neutral-400">
+                                        {{ __('Score') }}: {{ number_format((float) $submission->score, 2) }}
+                                    </p>
+                                @endif
                                 <a
                                     href="{{ route('student.assignments.show', $assignment) }}"
                                     class="mt-2 inline-flex items-center rounded-lg border border-neutral-300 px-3 py-1.5 text-xs transition hover:bg-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700"

@@ -44,6 +44,11 @@
                                         {{ __('Last submission') }}: {{ $submission->submitted_at->format('Y-m-d H:i') }}
                                     </p>
                                 @endif
+                                @if ($submission?->reviewed_at)
+                                    <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                        {{ __('Score') }}: {{ number_format((float) $submission->score, 2) }}
+                                    </p>
+                                @endif
                             </div>
 
                             <div class="flex flex-col items-start gap-2 md:items-end">
