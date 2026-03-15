@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\AcademicSection;
+use App\Models\Schedule;
 use App\Models\StudentProfile;
 use App\Models\Subject;
 use App\Models\TeachingAssignment;
@@ -89,6 +90,82 @@ test('student dashboard shows each subject with its assigned teacher', function 
     $response->assertSee('Subjects and teachers');
     $response->assertSee('Matematicas');
     $response->assertSee('Juan Perez');
+});
+
+test('student dashboard shows the weekly schedule ordered from monday to friday', function () {
+    $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER, 'name' => 'Teacher Schedule']);
+    $section = AcademicSection::create([
+        'name' => '4to Ano A',
+        'school_year' => '2026-2027',
+        'is_active' => true,
+    ]);
+
+    StudentProfile::create([
+        'user_id' => $student->id,
+        'academic_section_id' => $section->id,
+        'identity_card' => 'V99900002',
+        'phone' => '04140000001',
+    ]);
+
+    $mathematics = Subject::create([
+        'name' => 'Matematicas',
+        'code' => 'MAT',
+        'is_active' => true,
+    ]);
+
+    $history = Subject::create([
+        'name' => 'Historia',
+        'code' => 'HIS',
+        'is_active' => true,
+    ]);
+
+    $teacher->specializedSubjects()->sync([$mathematics->id, $history->id]);
+
+    $mathematicsAssignment = TeachingAssignment::create([
+        'academic_section_id' => $section->id,
+        'subject_id' => $mathematics->id,
+        'teacher_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    $historyAssignment = TeachingAssignment::create([
+        'academic_section_id' => $section->id,
+        'subject_id' => $history->id,
+        'teacher_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    Schedule::create([
+        'teaching_assignment_id' => $historyAssignment->id,
+        'weekday' => 'jueves',
+        'start_time' => '10:00:00',
+        'end_time' => '11:30:00',
+    ]);
+
+    Schedule::create([
+        'teaching_assignment_id' => $mathematicsAssignment->id,
+        'weekday' => 'lunes',
+        'start_time' => '08:00:00',
+        'end_time' => '09:30:00',
+    ]);
+
+    Schedule::create([
+        'teaching_assignment_id' => $historyAssignment->id,
+        'weekday' => 'miercoles',
+        'start_time' => '09:00:00',
+        'end_time' => '10:30:00',
+    ]);
+
+    $response = $this->actingAs($student)->get(route('student.dashboard'));
+
+    $response->assertOk();
+
+    $content = $response->getContent();
+
+    expect($content)->not->toBeFalse();
+    expect(strpos($content, 'Monday'))->toBeLessThan(strpos($content, 'Wednesday'));
+    expect(strpos($content, 'Wednesday'))->toBeLessThan(strpos($content, 'Thursday'));
 });
 
 test('teacher users cannot access student dashboard', function () {

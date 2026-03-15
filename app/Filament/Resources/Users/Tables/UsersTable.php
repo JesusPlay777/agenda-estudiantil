@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Models\AcademicSection;
 use App\Models\User;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class UsersTable
 {
@@ -52,6 +54,7 @@ class UsersTable
                         User::ROLE_TEACHER => $record->teacherProfile?->identity_card ?? '—',
                         default => '—',
                     })
+                    ->visibleFrom('md')
                     ->toggleable(),
 
                 TextColumn::make('phone_display')
@@ -61,6 +64,7 @@ class UsersTable
                         User::ROLE_TEACHER => $record->teacherProfile?->phone ?? '—',
                         default => '—',
                     })
+                    ->visibleFrom('md')
                     ->toggleable(),
 
                 IconColumn::make('email_verified_at')
@@ -89,6 +93,30 @@ class UsersTable
                         User::ROLE_TEACHER => __('ui.roles.teacher'),
                         User::ROLE_STUDENT => __('ui.roles.student'),
                     ])
+                    ->native(false),
+
+                SelectFilter::make('academic_section_id')
+                    ->label(__('ui.fields.academic_section'))
+                    ->options(fn (): array => AcademicSection::query()
+                        ->where('is_active', true)
+                        ->orderByDesc('school_year')
+                        ->orderBy('name')
+                        ->get()
+                        ->mapWithKeys(fn (AcademicSection $section): array => [
+                            $section->id => "{$section->name} - {$section->school_year}",
+                        ])
+                        ->all())
+                    ->query(function (Builder $query, array $data): Builder {
+                        $sectionId = $data['value'] ?? null;
+
+                        return $query->when(
+                            filled($sectionId),
+                            fn (Builder $query) => $query->whereHas(
+                                'studentProfile',
+                                fn (Builder $studentProfileQuery) => $studentProfileQuery->where('academic_section_id', $sectionId),
+                            ),
+                        );
+                    })
                     ->native(false),
             ])
             ->recordActions([

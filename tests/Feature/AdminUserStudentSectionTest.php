@@ -229,6 +229,38 @@ test('admin can filter users by role in the user list', function () {
         ->assertCanNotSeeTableRecords([$student, $admin]);
 });
 
+test('admin can filter users by academic section in the user list', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN, 'name' => 'Admin Section Filter']);
+    $studentA = User::factory()->create(['role' => User::ROLE_STUDENT, 'name' => 'Student Section A']);
+    $studentB = User::factory()->create(['role' => User::ROLE_STUDENT, 'name' => 'Student Section B']);
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER, 'name' => 'Teacher Without Section']);
+
+    $sectionA = createAcademicSection('5to Ano A');
+    $sectionB = createAcademicSection('5to Ano B');
+
+    StudentProfile::create([
+        'user_id' => $studentA->id,
+        'academic_section_id' => $sectionA->id,
+        'identity_card' => 'V60000001',
+        'phone' => '04140000011',
+    ]);
+
+    StudentProfile::create([
+        'user_id' => $studentB->id,
+        'academic_section_id' => $sectionB->id,
+        'identity_card' => 'V60000002',
+        'phone' => '04140000012',
+    ]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListUsers::class)
+        ->assertTableFilterExists('academic_section_id')
+        ->filterTable('academic_section_id', $sectionA->id)
+        ->assertCanSeeTableRecords([$studentA])
+        ->assertCanNotSeeTableRecords([$studentB, $teacher, $admin]);
+});
+
 test('admin user list shows identity card and phone from student and teacher profiles', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $student = User::factory()->create(['role' => User::ROLE_STUDENT, 'name' => 'Student Contact']);

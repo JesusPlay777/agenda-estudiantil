@@ -65,36 +65,47 @@
                 @if ($schedules->isEmpty())
                     <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-300">{{ __('No schedule blocks registered for your section yet.') }}</p>
                 @else
-                    <div class="mt-3 overflow-x-auto">
-                        <table class="min-w-full text-sm">
-                            <thead>
-                                <tr class="border-b border-neutral-200 text-left dark:border-neutral-700">
-                                    <th class="px-3 py-2">{{ __('Day') }}</th>
-                                    <th class="px-3 py-2">{{ __('Subject') }}</th>
-                                    <th class="px-3 py-2">{{ __('Teacher') }}</th>
-                                    <th class="px-3 py-2">{{ __('Hours') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($schedules as $schedule)
-                                    <tr class="border-b border-neutral-100 dark:border-neutral-800">
-                                        <td class="px-3 py-2">
-                                            @php
-                                                $translatedWeekday = __('ui.weekdays.'.$schedule->weekday);
-                                            @endphp
-                                            {{ $translatedWeekday === 'ui.weekdays.'.$schedule->weekday ? $schedule->weekday : $translatedWeekday }}
-                                        </td>
-                                        <td class="px-3 py-2">{{ $schedule->teachingAssignment?->subject?->name ?? '-' }}</td>
-                                        <td class="px-3 py-2">{{ $schedule->teachingAssignment?->teacher?->name ?? '-' }}</td>
-                                        <td class="px-3 py-2">
-                                            {{ \Illuminate\Support\Str::substr((string) $schedule->start_time, 0, 5) }}
-                                            -
-                                            {{ \Illuminate\Support\Str::substr((string) $schedule->end_time, 0, 5) }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div class="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+                        @foreach ($scheduleGroups as $scheduleGroup)
+                            @php
+                                $weekday = $scheduleGroup['weekday'];
+                                $groupedSchedules = $scheduleGroup['schedules'];
+                                $translatedWeekday = __('ui.weekdays.'.$weekday);
+                            @endphp
+                            <section class="overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50/70 dark:border-neutral-700 dark:bg-neutral-900/30">
+                                <header class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-700">
+                                    <h3 class="font-semibold">
+                                        {{ $translatedWeekday === 'ui.weekdays.'.$weekday ? $weekday : $translatedWeekday }}
+                                    </h3>
+                                </header>
+
+                                @if ($groupedSchedules->isEmpty())
+                                    <p class="px-4 py-4 text-sm text-neutral-500 dark:text-neutral-400">
+                                        {{ __('No classes scheduled.') }}
+                                    </p>
+                                @else
+                                    <ul class="divide-y divide-neutral-200 text-sm dark:divide-neutral-700">
+                                        @foreach ($groupedSchedules as $schedule)
+                                            <li class="px-4 py-3">
+                                                <div class="flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <p class="font-medium">{{ $schedule->teachingAssignment?->subject?->name ?? '-' }}</p>
+                                                        <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                                                            {{ __('Teacher') }}: {{ $schedule->teachingAssignment?->teacher?->name ?? '-' }}
+                                                        </p>
+                                                    </div>
+                                                    <span class="rounded-md bg-white px-2 py-1 text-xs font-medium text-neutral-700 shadow-sm dark:bg-neutral-800 dark:text-neutral-200">
+                                                        {{ \Illuminate\Support\Str::substr((string) $schedule->start_time, 0, 5) }}
+                                                        -
+                                                        {{ \Illuminate\Support\Str::substr((string) $schedule->end_time, 0, 5) }}
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </section>
+                        @endforeach
                     </div>
                 @endif
             </div>

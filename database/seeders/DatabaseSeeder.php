@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             CoreUsersSeeder::class,
             AcademicCatalogSeeder::class,
             AcademicDomainSeeder::class,
+            FourthYearASectionSeeder::class,
         ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Dashboard\Concerns\SortsSchedulesByWeekday;
 use App\Models\Assignment;
 use App\Models\Schedule;
 use App\Models\User;
@@ -10,6 +11,8 @@ use Illuminate\Contracts\View\View;
 
 class TeacherDashboardController extends Controller
 {
+    use SortsSchedulesByWeekday;
+
     public function __invoke(): View
     {
         /** @var User $user */
@@ -39,26 +42,16 @@ class TeacherDashboardController extends Controller
             ->sortBy('name')
             ->values();
 
-        $weekdayOrder = [
-            'lunes' => 1,
-            'martes' => 2,
-            'miercoles' => 3,
-            'jueves' => 4,
-            'viernes' => 5,
-        ];
-
         $schedules = Schedule::query()
             ->whereIn('teaching_assignment_id', $assignmentIds)
             ->with([
                 'teachingAssignment.subject:id,name',
                 'teachingAssignment.academicSection:id,name,school_year',
             ])
-            ->get()
-            ->sortBy([
-                fn (Schedule $schedule): int => $weekdayOrder[$schedule->weekday] ?? 99,
-                'start_time',
-            ])
-            ->values();
+            ->get();
+
+        $schedules = $this->sortSchedulesByWeekday($schedules);
+        $scheduleGroups = $this->groupSchedulesByWeekday($schedules);
 
         $recentAssignments = Assignment::query()
             ->whereIn('teaching_assignment_id', $assignmentIds)
@@ -76,6 +69,7 @@ class TeacherDashboardController extends Controller
             'subjects' => $subjects,
             'sections' => $sections,
             'schedules' => $schedules,
+            'scheduleGroups' => $scheduleGroups,
             'recentAssignments' => $recentAssignments,
         ]);
     }

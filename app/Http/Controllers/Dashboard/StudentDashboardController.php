@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Dashboard\Concerns\ResolvesAssignmentSubmissionStatus;
+use App\Http\Controllers\Dashboard\Concerns\SortsSchedulesByWeekday;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Schedule;
@@ -15,6 +16,7 @@ use Illuminate\Contracts\View\View;
 class StudentDashboardController extends Controller
 {
     use ResolvesAssignmentSubmissionStatus;
+    use SortsSchedulesByWeekday;
 
     public function __invoke(): View
     {
@@ -31,6 +33,7 @@ class StudentDashboardController extends Controller
                 'studentProfile' => null,
                 'subjectTeachers' => collect(),
                 'schedules' => collect(),
+                'scheduleGroups' => collect(),
                 'recentAssignments' => collect(),
                 'recentSubmissionsByAssignment' => collect(),
                 'recentStatusesByAssignment' => collect(),
@@ -53,26 +56,16 @@ class StudentDashboardController extends Controller
             ->sortBy(fn (TeachingAssignment $assignment): string => (string) $assignment->subject?->name)
             ->values();
 
-        $weekdayOrder = [
-            'lunes' => 1,
-            'martes' => 2,
-            'miercoles' => 3,
-            'jueves' => 4,
-            'viernes' => 5,
-        ];
-
         $schedules = Schedule::query()
             ->whereIn('teaching_assignment_id', $assignmentIds)
             ->with([
                 'teachingAssignment.subject:id,name',
                 'teachingAssignment.teacher:id,name',
             ])
-            ->get()
-            ->sortBy([
-                fn (Schedule $schedule): int => $weekdayOrder[$schedule->weekday] ?? 99,
-                'start_time',
-            ])
-            ->values();
+            ->get();
+
+        $schedules = $this->sortSchedulesByWeekday($schedules);
+        $scheduleGroups = $this->groupSchedulesByWeekday($schedules);
 
         $recentAssignments = Assignment::query()
             ->whereIn('teaching_assignment_id', $assignmentIds)
@@ -105,6 +98,7 @@ class StudentDashboardController extends Controller
             'studentProfile' => $studentProfile,
             'subjectTeachers' => $subjectTeachers,
             'schedules' => $schedules,
+            'scheduleGroups' => $scheduleGroups,
             'recentAssignments' => $recentAssignments,
             'recentSubmissionsByAssignment' => $recentSubmissionsByAssignment,
             'recentStatusesByAssignment' => $recentStatusesByAssignment,
