@@ -69,20 +69,19 @@
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
+    </div>
 
-        <div>
-            <label for="published_at" class="mb-1 block text-sm font-medium">{{ __('Published at') }}</label>
-            <input
-                id="published_at"
-                name="published_at"
-                type="date"
-                value="{{ old('published_at', $assignment?->published_at?->format('Y-m-d')) }}"
-                class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-            />
-            @error('published_at')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
+    <div class="rounded-lg border border-dashed border-neutral-300 px-4 py-3 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-300">
+        <p class="font-medium text-neutral-900 dark:text-neutral-100">{{ __('Publication date') }}</p>
+        @if ($assignment?->published_at)
+            <p class="mt-1">
+                {{ __('Published on: :date', ['date' => $assignment->published_at->format('Y-m-d H:i')]) }}
+            </p>
+        @else
+            <p class="mt-1">
+                {{ __('Published automatically when the task is created.') }}
+            </p>
+        @endif
     </div>
 
     <div class="flex items-center gap-2">

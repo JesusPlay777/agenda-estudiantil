@@ -56,7 +56,6 @@ test('teacher can create assignment for owned teaching assignment', function () 
         'title' => 'Nueva tarea',
         'description' => 'Contenido de la tarea',
         'due_date' => now()->addDays(7)->toDateString(),
-        'published_at' => now()->toDateString(),
         'is_active' => '1',
     ]);
 
@@ -66,6 +65,8 @@ test('teacher can create assignment for owned teaching assignment', function () 
         'teaching_assignment_id' => $teachingAssignment->id,
         'title' => 'Nueva tarea',
     ]);
+
+    expect(Assignment::query()->where('title', 'Nueva tarea')->first()?->published_at)->not->toBeNull();
 });
 
 test('teacher cannot create assignment for another teachers teaching assignment', function () {
@@ -78,7 +79,6 @@ test('teacher cannot create assignment for another teachers teaching assignment'
         'title' => 'Tarea invalida',
         'description' => 'No deberia guardarse',
         'due_date' => now()->addDays(7)->toDateString(),
-        'published_at' => now()->toDateString(),
         'is_active' => '1',
     ]);
 
@@ -107,7 +107,6 @@ test('teacher can update own assignment', function () {
         'title' => 'Tarea actualizada',
         'description' => 'Descripcion actualizada',
         'due_date' => now()->addDays(10)->toDateString(),
-        'published_at' => now()->toDateString(),
         'is_active' => '1',
     ]);
 

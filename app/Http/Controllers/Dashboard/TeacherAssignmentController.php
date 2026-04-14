@@ -62,7 +62,10 @@ class TeacherAssignmentController extends Controller
 
         $this->ensureTeachingAssignmentBelongsToTeacher($user, (int) $data['teaching_assignment_id']);
 
-        $assignment = Assignment::create($data);
+        $assignment = Assignment::create([
+            ...$data,
+            'published_at' => now(),
+        ]);
 
         if ($assignment->shouldSendPublishedNotification()) {
             AssignmentPublished::dispatch($assignment);
@@ -135,7 +138,6 @@ class TeacherAssignmentController extends Controller
      *     title: string,
      *     description: string,
      *     due_date: string|null,
-     *     published_at: string|null,
      *     is_active: bool
      * }
      */
@@ -146,7 +148,6 @@ class TeacherAssignmentController extends Controller
          *     title: string,
          *     description: string,
          *     due_date: string|null,
-         *     published_at: string|null,
          *     is_active: bool
          * } $validated
          */
@@ -155,7 +156,6 @@ class TeacherAssignmentController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'due_date' => ['nullable', 'date'],
-            'published_at' => ['nullable', 'date'],
             'is_active' => ['required', 'boolean'],
         ]);
 

@@ -67,7 +67,6 @@ test('students in the assignment section receive an email notification when a te
         'title' => 'Nueva tarea publicada',
         'description' => 'Contenido de la tarea.',
         'due_date' => now()->addDays(5)->toDateString(),
-        'published_at' => now()->toDateString(),
         'is_active' => '1',
     ]);
 
@@ -105,8 +104,7 @@ test('draft assignments do not notify students until they are published', functi
         'title' => 'Tarea borrador',
         'description' => 'No debe notificar aun.',
         'due_date' => now()->addDays(7)->toDateString(),
-        'published_at' => null,
-        'is_active' => '1',
+        'is_active' => '0',
     ])->assertRedirect(route('teacher.assignments.index', absolute: false));
 
     Notification::assertNothingSent();
@@ -118,7 +116,6 @@ test('draft assignments do not notify students until they are published', functi
         'title' => 'Tarea borrador',
         'description' => 'Ahora si esta publicada.',
         'due_date' => now()->addDays(7)->toDateString(),
-        'published_at' => now()->toDateString(),
         'is_active' => '1',
     ])->assertRedirect(route('teacher.assignments.index', absolute: false));
 
@@ -156,7 +153,6 @@ test('editing an already published assignment does not resend the publish notifi
         'title' => 'Tarea ya publicada editada',
         'description' => 'Descripcion ajustada.',
         'due_date' => now()->addDays(6)->toDateString(),
-        'published_at' => now()->toDateString(),
         'is_active' => '1',
     ])->assertRedirect(route('teacher.assignments.index', absolute: false));
 
