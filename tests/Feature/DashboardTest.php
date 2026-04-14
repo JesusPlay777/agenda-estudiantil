@@ -168,6 +168,64 @@ test('student dashboard shows the weekly schedule ordered from monday to friday'
     expect(strpos($content, 'Wednesday'))->toBeLessThan(strpos($content, 'Thursday'));
 });
 
+test('student dashboard separates weekly schedule into morning and afternoon blocks', function () {
+    $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
+    $teacher = User::factory()->create(['role' => User::ROLE_TEACHER, 'name' => 'Teacher Shift']);
+    $section = AcademicSection::create([
+        'name' => '3er Ano A',
+        'school_year' => '2026-2027',
+        'is_active' => true,
+    ]);
+
+    StudentProfile::create([
+        'user_id' => $student->id,
+        'academic_section_id' => $section->id,
+        'identity_card' => 'V99900003',
+        'phone' => '04140000002',
+    ]);
+
+    $subject = Subject::create([
+        'name' => 'Biologia',
+        'code' => 'BIO',
+        'is_active' => true,
+    ]);
+
+    $teacher->specializedSubjects()->sync([$subject->id]);
+
+    $teachingAssignment = TeachingAssignment::create([
+        'academic_section_id' => $section->id,
+        'subject_id' => $subject->id,
+        'teacher_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    Schedule::create([
+        'teaching_assignment_id' => $teachingAssignment->id,
+        'weekday' => 'lunes',
+        'start_time' => '08:00:00',
+        'end_time' => '09:30:00',
+    ]);
+
+    Schedule::create([
+        'teaching_assignment_id' => $teachingAssignment->id,
+        'weekday' => 'lunes',
+        'start_time' => '13:20:00',
+        'end_time' => '14:00:00',
+    ]);
+
+    $response = $this->actingAs($student)->get(route('student.dashboard'));
+
+    $response->assertOk();
+    $response->assertSee('Morning');
+    $response->assertSee('Afternoon');
+    $response->assertSeeInOrder([
+        'Morning',
+        '08:00 - 09:30',
+        'Afternoon',
+        '13:20 - 14:00',
+    ]);
+});
+
 test('teacher users cannot access student dashboard', function () {
     $teacher = User::factory()->create(['role' => User::ROLE_TEACHER]);
 

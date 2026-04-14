@@ -42,14 +42,17 @@ class FourthYearASectionSeeder extends Seeder
             'MAT' => [
                 ['weekday' => 'lunes', 'start_time' => '08:00:00', 'end_time' => '09:30:00'],
                 ['weekday' => 'jueves', 'start_time' => '08:00:00', 'end_time' => '09:30:00'],
+                ['weekday' => 'martes', 'start_time' => '13:20:00', 'end_time' => '14:00:00'],
             ],
             'ING' => [
                 ['weekday' => 'miercoles', 'start_time' => '10:00:00', 'end_time' => '11:30:00'],
                 ['weekday' => 'viernes', 'start_time' => '10:00:00', 'end_time' => '11:30:00'],
+                ['weekday' => 'jueves', 'start_time' => '13:10:00', 'end_time' => '13:50:00'],
             ],
             'HIS' => [
                 ['weekday' => 'martes', 'start_time' => '09:00:00', 'end_time' => '10:30:00'],
                 ['weekday' => 'jueves', 'start_time' => '10:00:00', 'end_time' => '11:30:00'],
+                ['weekday' => 'viernes', 'start_time' => '14:40:00', 'end_time' => '15:20:00'],
             ],
         ];
 

@@ -65,7 +65,7 @@ class StudentDashboardController extends Controller
             ->get();
 
         $schedules = $this->sortSchedulesByWeekday($schedules);
-        $scheduleGroups = $this->groupSchedulesByWeekday($schedules);
+        $scheduleGroups = $this->groupSchedulesByWeekdayAndShift($schedules);
 
         $recentAssignments = Assignment::query()
             ->whereIn('teaching_assignment_id', $assignmentIds)

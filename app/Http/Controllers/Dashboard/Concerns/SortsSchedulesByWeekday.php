@@ -57,6 +57,35 @@ trait SortsSchedulesByWeekday
     }
 
     /**
+     * @param  Collection<int, Schedule>  $schedules
+     * @return Collection<int, array{
+     *     weekday: string,
+     *     morning: Collection<int, Schedule>,
+     *     afternoon: Collection<int, Schedule>
+     * }>
+     */
+    protected function groupSchedulesByWeekdayAndShift(Collection $schedules): Collection
+    {
+        $groupedSchedules = $this->sortSchedulesByWeekday($schedules)
+            ->groupBy(fn (Schedule $schedule): string => $this->normalizeWeekday($schedule->weekday));
+
+        return collect($this->orderedWeekdays())
+            ->map(function (string $weekday) use ($groupedSchedules): array {
+                $weekdaySchedules = $groupedSchedules->get($weekday, collect())->values();
+
+                return [
+                    'weekday' => $weekday,
+                    'morning' => $weekdaySchedules
+                        ->filter(fn (Schedule $schedule): bool => $this->resolveScheduleShift($schedule) === 'morning')
+                        ->values(),
+                    'afternoon' => $weekdaySchedules
+                        ->filter(fn (Schedule $schedule): bool => $this->resolveScheduleShift($schedule) === 'afternoon')
+                        ->values(),
+                ];
+            });
+    }
+
+    /**
      * @return list<string>
      */
     protected function orderedWeekdays(): array
@@ -71,5 +100,12 @@ trait SortsSchedulesByWeekday
             ->ascii()
             ->replace(' ', '')
             ->toString();
+    }
+
+    protected function resolveScheduleShift(Schedule $schedule): string
+    {
+        $hour = (int) Str::before((string) $schedule->start_time, ':');
+
+        return $hour < 12 ? 'morning' : 'afternoon';
     }
 }
