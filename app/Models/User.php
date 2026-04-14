@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasLocalePreference
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
@@ -32,6 +33,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'role',
+        'preferred_locale',
         'password',
     ];
 
@@ -113,6 +115,17 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $panel->getId() === 'admin' && $this->isAdmin();
+    }
+
+    public function preferredLocale(): string
+    {
+        $supportedLocales = array_keys(config('app.supported_locales', []));
+
+        if (in_array($this->preferred_locale, $supportedLocales, true)) {
+            return $this->preferred_locale;
+        }
+
+        return config('app.locale');
     }
 
     /**

@@ -20,6 +20,12 @@ Route::post('/locale', function (Request $request) {
 
     $request->session()->put('locale', $validated['locale']);
 
+    if ($request->user()) {
+        $request->user()->forceFill([
+            'preferred_locale' => $validated['locale'],
+        ])->save();
+    }
+
     return back();
 })->name('locale.switch');
 

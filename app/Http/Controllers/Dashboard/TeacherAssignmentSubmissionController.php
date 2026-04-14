@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Dashboard\Concerns\ResolvesAssignmentSubmissionStatus;
+use App\Events\AssignmentReviewed;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\StudentProfile;
@@ -75,6 +76,15 @@ class TeacherAssignmentSubmissionController extends Controller
             'reviewed_at' => $hasReviewData ? now() : null,
             'reviewed_by' => $hasReviewData ? $user->id : null,
         ]);
+
+        $submission->refresh();
+
+        if ($hasReviewData && $submission->shouldSendReviewNotification()) {
+            AssignmentReviewed::dispatch($submission);
+            $submission->forceFill([
+                'review_notification_sent_at' => now(),
+            ])->save();
+        }
 
         return redirect()
             ->route('teacher.assignments.submissions.show', [$assignment, $submission])

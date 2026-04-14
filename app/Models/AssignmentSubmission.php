@@ -16,6 +16,7 @@ class AssignmentSubmission extends Model
         'score',
         'teacher_feedback',
         'reviewed_at',
+        'review_notification_sent_at',
         'reviewed_by',
     ];
 
@@ -25,6 +26,7 @@ class AssignmentSubmission extends Model
             'submitted_at' => 'datetime',
             'score' => 'decimal:2',
             'reviewed_at' => 'datetime',
+            'review_notification_sent_at' => 'datetime',
         ];
     }
 
@@ -47,5 +49,15 @@ class AssignmentSubmission extends Model
     {
         return $this->hasMany(AssignmentSubmissionAttachment::class)
             ->orderBy('original_name');
+    }
+
+    public function hasReview(): bool
+    {
+        return $this->reviewed_at !== null;
+    }
+
+    public function shouldSendReviewNotification(): bool
+    {
+        return $this->hasReview() && $this->review_notification_sent_at === null;
     }
 }

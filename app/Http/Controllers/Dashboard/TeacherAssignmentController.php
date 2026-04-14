@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Events\AssignmentPublished;
 use App\Models\Assignment;
 use App\Models\TeachingAssignment;
 use App\Models\User;
@@ -61,7 +62,14 @@ class TeacherAssignmentController extends Controller
 
         $this->ensureTeachingAssignmentBelongsToTeacher($user, (int) $data['teaching_assignment_id']);
 
-        Assignment::create($data);
+        $assignment = Assignment::create($data);
+
+        if ($assignment->shouldSendPublishedNotification()) {
+            AssignmentPublished::dispatch($assignment);
+            $assignment->forceFill([
+                'published_notification_sent_at' => now(),
+            ])->save();
+        }
 
         return redirect()
             ->route('teacher.assignments.index')
@@ -94,6 +102,14 @@ class TeacherAssignmentController extends Controller
         $this->ensureTeachingAssignmentBelongsToTeacher($user, (int) $data['teaching_assignment_id']);
 
         $assignment->update($data);
+        $assignment->refresh();
+
+        if ($assignment->shouldSendPublishedNotification()) {
+            AssignmentPublished::dispatch($assignment);
+            $assignment->forceFill([
+                'published_notification_sent_at' => now(),
+            ])->save();
+        }
 
         return redirect()
             ->route('teacher.assignments.index')

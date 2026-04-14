@@ -293,6 +293,7 @@ test('student can upload attachments and a new submission clears previous review
     expect($submission->score)->toBeNull();
     expect($submission->teacher_feedback)->toBeNull();
     expect($submission->reviewed_at)->toBeNull();
+    expect($submission->review_notification_sent_at)->toBeNull();
     expect($submission->reviewed_by)->toBeNull();
     expect($submission->attachments)->toHaveCount(1);
 

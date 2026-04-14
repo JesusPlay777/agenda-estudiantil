@@ -144,6 +144,7 @@ class StudentAssignmentController extends Controller
                 'score' => null,
                 'teacher_feedback' => null,
                 'reviewed_at' => null,
+                'review_notification_sent_at' => null,
                 'reviewed_by' => null,
             ],
         );
