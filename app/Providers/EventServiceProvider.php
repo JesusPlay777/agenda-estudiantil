@@ -6,19 +6,14 @@ use App\Events\AssignmentPublished;
 use App\Events\AssignmentReviewed;
 use App\Listeners\SendAssignmentPublishedNotification;
 use App\Listeners\SendAssignmentReviewedNotification;
-use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
 {
-    /**
-     * @var array<class-string, array<int, class-string>>
-     */
-    protected $listen = [
-        AssignmentPublished::class => [
-            SendAssignmentPublishedNotification::class,
-        ],
-        AssignmentReviewed::class => [
-            SendAssignmentReviewedNotification::class,
-        ],
-    ];
+    public function boot(): void
+    {
+        Event::listen(AssignmentPublished::class, SendAssignmentPublishedNotification::class);
+        Event::listen(AssignmentReviewed::class, SendAssignmentReviewedNotification::class);
+    }
 }

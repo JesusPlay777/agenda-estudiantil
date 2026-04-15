@@ -78,7 +78,10 @@ test('students in the assignment section receive an email notification when a te
     });
 
     Notification::assertSentTo($studentB, AssignmentPublishedNotification::class);
+    Notification::assertSentToTimes($studentA, AssignmentPublishedNotification::class, 1);
+    Notification::assertSentToTimes($studentB, AssignmentPublishedNotification::class, 1);
     Notification::assertNotSentTo($foreignStudent, AssignmentPublishedNotification::class);
+    Notification::assertSentTimes(AssignmentPublishedNotification::class, 2);
 
     $assignment = Assignment::query()->where('title', 'Nueva tarea publicada')->firstOrFail();
 
@@ -120,6 +123,7 @@ test('draft assignments do not notify students until they are published', functi
     ])->assertRedirect(route('teacher.assignments.index', absolute: false));
 
     Notification::assertSentTo($student, AssignmentPublishedNotification::class);
+    Notification::assertSentToTimes($student, AssignmentPublishedNotification::class, 1);
 
     expect($assignment->fresh()->published_notification_sent_at)->not->toBeNull();
 });
@@ -196,6 +200,7 @@ test('student receives an email notification only on the first effective review 
         return in_array('mail', $channels, true)
             && (float) $notification->submission->score === 18.0;
     });
+    Notification::assertSentToTimes($student, AssignmentReviewedNotification::class, 1);
 
     expect($submission->fresh()->review_notification_sent_at)->not->toBeNull();
 
