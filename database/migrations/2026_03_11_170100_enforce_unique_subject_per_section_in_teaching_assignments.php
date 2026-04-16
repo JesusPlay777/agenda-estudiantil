@@ -20,22 +20,28 @@ return new class extends Migration
         }
 
         Schema::table('teaching_assignments', function (Blueprint $table): void {
-            $table->dropUnique('teaching_unique');
             $table->unique(
                 ['academic_section_id', 'subject_id'],
                 'teaching_section_subject_unique',
             );
+        });
+
+        Schema::table('teaching_assignments', function (Blueprint $table): void {
+            $table->dropUnique('teaching_unique');
         });
     }
 
     public function down(): void
     {
         Schema::table('teaching_assignments', function (Blueprint $table): void {
-            $table->dropUnique('teaching_section_subject_unique');
             $table->unique(
                 ['academic_section_id', 'subject_id', 'teacher_id'],
                 'teaching_unique',
             );
+        });
+
+        Schema::table('teaching_assignments', function (Blueprint $table): void {
+            $table->dropUnique('teaching_section_subject_unique');
         });
     }
 };
